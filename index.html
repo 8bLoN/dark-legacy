@@ -1,0 +1,1378 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Dark Legacy — Fantasy Idle Clicker</title>
+<style>
+:root {
+  --bg:#080810;--bg1:#0f0f1a;--bg2:#141420;--bg3:#1a1a2a;
+  --border:#2a2040;--borderB:#4a3070;--gold:#c8a030;--gold2:#e8c060;
+  --text:#d8d0c8;--text2:#908888;--text3:#504848;
+  --red:#aa2020;--red2:#dd3030;--green2:#30b050;
+  --purple:#601880;--purple2:#9030c0;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;font-size:13px;height:100vh;display:flex;flex-direction:column;overflow:hidden;user-select:none;}
+/* TOP BAR */
+#top{display:flex;align-items:center;justify-content:space-between;background:var(--bg2);border-bottom:2px solid var(--borderB);padding:6px 16px;height:48px;flex-shrink:0;}
+#title{font-size:18px;color:var(--gold);text-shadow:0 0 10px var(--gold);letter-spacing:3px;font-weight:bold;}
+#resources{display:flex;gap:20px;align-items:center;}
+.res{display:flex;flex-direction:column;align-items:center;}
+.res-v{color:var(--gold2);font-size:14px;font-weight:bold;}
+.res-l{color:var(--text3);font-size:9px;letter-spacing:1px;}
+#phase-ind{padding:4px 12px;border:1px solid var(--borderB);border-radius:4px;background:var(--bg3);color:var(--purple2);font-weight:bold;letter-spacing:2px;font-size:11px;}
+/* MAIN */
+#main{display:flex;flex:1;overflow:hidden;}
+/* MONSTER PANEL */
+#mon-panel{width:320px;flex-shrink:0;background:var(--bg1);border-right:2px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:14px;position:relative;overflow:hidden;}
+#mon-panel::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(100,0,0,0.08) 0%,transparent 70%);pointer-events:none;}
+#mon-label{font-size:10px;letter-spacing:3px;color:var(--text3);margin-bottom:6px;}
+#mon-name{font-size:15px;color:var(--red2);text-shadow:0 0 8px var(--red);letter-spacing:2px;margin-bottom:3px;text-align:center;}
+#mon-wave{font-size:10px;color:var(--text3);margin-bottom:10px;}
+#hp-wrap{width:100%;height:18px;background:var(--bg3);border:1px solid var(--border);border-radius:2px;margin-bottom:14px;position:relative;overflow:hidden;}
+#hp-bar{height:100%;background:linear-gradient(90deg,var(--red),var(--red2));transition:width 0.1s;}
+#hp-txt{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:10px;color:#fff;text-shadow:1px 1px 2px #000;z-index:1;}
+#mon-area{width:180px;height:180px;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;transition:transform 0.06s;}
+#mon-area:active{transform:scale(0.94);}
+#mon-area:hover svg{filter:brightness(1.25);}
+.dmg-pop{position:absolute;font-size:15px;font-weight:bold;color:var(--gold2);text-shadow:0 0 4px var(--gold);pointer-events:none;animation:pop 0.8s ease-out forwards;z-index:10;}
+@keyframes pop{0%{opacity:1;transform:translateY(0) scale(1);}100%{opacity:0;transform:translateY(-55px) scale(0.7);}}
+#mon-stats{width:100%;margin-top:10px;display:flex;gap:10px;justify-content:center;}
+.sbox{background:var(--bg3);border:1px solid var(--border);border-radius:3px;padding:5px 10px;text-align:center;}
+.sbox .v{color:var(--gold);font-weight:bold;font-size:13px;}
+.sbox .l{color:var(--text3);font-size:9px;letter-spacing:1px;}
+#kills-txt{margin-top:8px;color:var(--text3);font-size:10px;}
+#phase-prog{width:100%;margin-top:10px;}
+.ppbar{height:4px;background:var(--bg3);border-radius:2px;overflow:hidden;}
+.ppfill{height:100%;background:linear-gradient(90deg,var(--purple),var(--purple2));transition:width 0.3s;}
+.pptxt{font-size:9px;color:var(--text3);text-align:center;margin-top:2px;}
+/* HERO PANEL */
+#hero-panel{flex:1;background:var(--bg1);border-right:2px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:14px;overflow:hidden;position:relative;}
+#hero-panel::before{content:'';position:absolute;bottom:0;left:0;right:0;height:80px;background:linear-gradient(transparent,rgba(70,0,100,0.1));pointer-events:none;}
+#hero-lbl{font-size:10px;letter-spacing:3px;color:var(--text3);margin-bottom:6px;}
+#hero-area{width:220px;height:240px;display:flex;align-items:flex-end;justify-content:center;position:relative;}
+#hero-area::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:110px;height:18px;background:radial-gradient(ellipse,rgba(0,0,0,0.5) 0%,transparent 70%);border-radius:50%;}
+#hero-name-txt{font-size:14px;color:var(--gold);letter-spacing:2px;margin-top:6px;text-align:center;}
+#hero-stats{width:100%;display:flex;gap:8px;margin-top:6px;justify-content:center;flex-wrap:wrap;}
+#squad-area{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;justify-content:center;max-width:100%;}
+.squad-slot{display:flex;flex-direction:column;align-items:center;gap:3px;}
+.squad-lbl{font-size:9px;color:var(--text3);letter-spacing:1px;}
+#prestige-info{position:absolute;top:8px;right:8px;color:var(--purple2);font-size:10px;}
+#dps-txt{font-size:10px;color:var(--text3);margin-top:4px;}
+/* UPGRADE PANEL */
+#upg-panel{width:360px;flex-shrink:0;background:var(--bg1);display:flex;flex-direction:column;overflow:hidden;}
+#upg-tabs{display:flex;background:var(--bg2);border-bottom:2px solid var(--border);flex-shrink:0;}
+.tab{flex:1;padding:8px 2px;text-align:center;cursor:pointer;font-size:9px;letter-spacing:1px;color:var(--text3);border-bottom:2px solid transparent;transition:all 0.2s;margin-bottom:-2px;}
+.tab:hover{color:var(--text);}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold);background:var(--bg3);}
+.tab.locked{opacity:0.3;cursor:not-allowed;}
+#upg-list{flex:1;overflow-y:auto;padding:8px;display:flex;flex-direction:column;gap:5px;}
+#upg-list::-webkit-scrollbar{width:3px;}
+#upg-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+.ucard{background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:9px 11px;cursor:pointer;transition:all 0.15s;position:relative;overflow:hidden;}
+.ucard:hover{border-color:var(--borderB);background:#1e1e30;}
+.ucard.can{border-color:var(--gold);}
+.ucard.can:hover{background:#1e1a10;box-shadow:0 0 8px rgba(200,160,48,0.3);}
+.ucard.locked{opacity:0.35;cursor:not-allowed;}
+.ucard::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--border);}
+.ucard.can::before{background:var(--gold);}
+.uhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;}
+.uname{font-weight:bold;color:var(--text);font-size:11px;}
+.ulvl{font-size:10px;color:var(--text2);background:var(--bg);padding:1px 5px;border-radius:10px;border:1px solid var(--border);}
+.udesc{color:var(--text3);font-size:9px;margin-bottom:5px;}
+.ufoot{display:flex;justify-content:space-between;align-items:center;}
+.ucost{color:var(--gold);font-size:11px;font-weight:bold;}
+.ucost.no{color:var(--red2);}
+.ubonus{color:var(--green2);font-size:9px;}
+.tier-bar{height:3px;background:var(--bg);border-radius:1px;margin-top:5px;display:flex;gap:2px;}
+.tp{flex:1;height:100%;background:var(--border);border-radius:1px;}
+.tp.on{background:var(--gold);}
+.tp.next{background:rgba(200,160,48,0.25);}
+#buy-row{display:flex;gap:4px;padding:8px;background:var(--bg2);border-top:1px solid var(--border);flex-shrink:0;}
+.bbtn{flex:1;padding:5px;background:var(--bg3);border:1px solid var(--border);border-radius:3px;color:var(--text2);cursor:pointer;font-size:10px;font-family:inherit;letter-spacing:1px;transition:all 0.15s;}
+.bbtn:hover{background:var(--bg2);color:var(--text);}
+.bbtn.active{background:var(--gold);color:var(--bg);border-color:var(--gold);font-weight:bold;}
+#prestige-btn{display:none;margin:8px;padding:10px;background:linear-gradient(135deg,var(--purple),var(--purple2));border:2px solid var(--purple2);border-radius:4px;color:#fff;cursor:pointer;font-family:inherit;font-size:12px;letter-spacing:2px;text-align:center;box-shadow:0 0 14px rgba(144,48,192,0.4);transition:all 0.2s;flex-shrink:0;}
+#prestige-btn:hover{box-shadow:0 0 22px rgba(144,48,192,0.6);transform:translateY(-1px);}
+/* ADMIN */
+#admin-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:999;}
+#admin{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#0a0a14;border:2px solid var(--gold);border-radius:6px;padding:20px;z-index:1000;min-width:370px;box-shadow:0 0 40px rgba(200,160,48,0.4);}
+#admin h2{color:var(--gold);font-size:13px;letter-spacing:3px;margin-bottom:14px;border-bottom:1px solid var(--border);padding-bottom:7px;}
+.arow{display:flex;align-items:center;gap:8px;margin-bottom:9px;}
+.arow label{color:var(--text2);font-size:10px;width:150px;flex-shrink:0;}
+.arow input,.arow select{flex:1;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:4px 7px;font-family:inherit;font-size:11px;border-radius:3px;}
+.arow input:focus,.arow select:focus{outline:none;border-color:var(--gold);}
+.abtn{background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:4px 11px;cursor:pointer;font-family:inherit;font-size:10px;border-radius:3px;transition:all 0.15s;}
+.abtn:hover{border-color:var(--gold);color:var(--gold);}
+.abtn.danger{border-color:var(--red);color:var(--red2);}
+.abtn.danger:hover{background:rgba(170,32,32,0.2);}
+#admin-x{position:absolute;top:9px;right:11px;background:none;border:none;color:var(--text3);cursor:pointer;font-size:17px;}
+/* NOTIFICATIONS */
+#notifs{position:fixed;top:58px;right:14px;z-index:500;display:flex;flex-direction:column;gap:4px;pointer-events:none;}
+.notif{background:var(--bg3);border:1px solid var(--gold);border-radius:4px;padding:7px 14px;color:var(--gold2);font-size:11px;letter-spacing:1px;animation:ntf 3s ease-out forwards;box-shadow:0 0 12px rgba(200,160,48,0.3);}
+.notif.phase{background:linear-gradient(135deg,var(--purple),#0a0a20);border-color:var(--purple2);color:#fff;font-size:13px;box-shadow:0 0 20px rgba(144,48,192,0.5);}
+@keyframes ntf{0%{opacity:0;transform:translateX(20px);}10%{opacity:1;transform:translateX(0);}80%{opacity:1;}100%{opacity:0;transform:translateX(20px);}}
+</style>
+</head>
+<body>
+<div id="top">
+  <div id="title">⚔ DARK LEGACY</div>
+  <div id="resources">
+    <div class="res"><div class="res-v" id="gold-v">0</div><div class="res-l">ЗОЛОТО</div></div>
+    <div class="res"><div class="res-v" id="gps-v">0/с</div><div class="res-l">ДОХОД</div></div>
+    <div class="res"><div class="res-v" id="dps-v">0</div><div class="res-l">ДПС</div></div>
+    <div class="res"><div class="res-v" id="prest-v">×1.0</div><div class="res-l">ПРЕСТИЖ</div></div>
+  </div>
+  <div id="phase-ind">ГЕРОЙ</div>
+  <button onclick="openAdmin()" style="background:var(--bg3);border:1px solid var(--border);color:var(--text3);padding:4px 10px;cursor:pointer;font-family:inherit;font-size:11px;border-radius:3px;letter-spacing:1px;" title="Alt+A">⚙ АДМИН</button>
+</div>
+<div id="main">
+  <!-- MONSTER PANEL -->
+  <div id="mon-panel">
+    <div id="mon-label">— ПРОТИВНИК —</div>
+    <div id="mon-name">Гоблин</div>
+    <div id="mon-wave">Волна 1</div>
+    <div id="hp-wrap"><div id="hp-bar" style="width:100%"></div><div id="hp-txt">100/100</div></div>
+    <div id="mon-area"></div>
+    <div id="mon-stats">
+      <div class="sbox"><div class="v" id="mon-dmg-v">1</div><div class="l">УРОН/с</div></div>
+      <div class="sbox"><div class="v" id="mon-gold-v">5</div><div class="l">НАГРАДА</div></div>
+    </div>
+    <div id="kills-txt">Убито: <span id="kills-v">0</span></div>
+    <div id="phase-prog">
+      <div class="ppbar"><div class="ppfill" id="pp-fill" style="width:0%"></div></div>
+      <div class="pptxt" id="pp-txt">До следующей фазы: 0%</div>
+    </div>
+  </div>
+  <!-- HERO PANEL -->
+  <div id="hero-panel">
+    <div id="prestige-info">★ <span id="prest-count">0</span> престиж(а)</div>
+    <div id="hero-lbl">— ЧЕМПИОН —</div>
+    <div id="hero-area"></div>
+    <div id="hero-name-txt">Странник</div>
+    <div id="hero-stats">
+      <div class="sbox"><div class="v" id="click-dmg-v">5</div><div class="l">КЛИК</div></div>
+      <div class="sbox"><div class="v" id="auto-dps-v">0</div><div class="l">АВТ.ДПС</div></div>
+    </div>
+    <div id="dps-txt">Всего ДПС: <span id="total-dps-v">0</span></div>
+    <div id="squad-area"></div>
+  </div>
+  <!-- UPGRADE PANEL -->
+  <div id="upg-panel">
+    <div id="upg-tabs">
+      <div class="tab active" data-tab="0">⚔ ГЕРОЙ</div>
+      <div class="tab locked" data-tab="1">👥 ОТРЯД</div>
+      <div class="tab locked" data-tab="2">⚔ АРМИЯ</div>
+      <div class="tab locked" data-tab="3">✦ МАГИЯ</div>
+      <div class="tab locked" data-tab="4">✦ КОСМОС</div>
+    </div>
+    <div id="upg-list"></div>
+    <div id="buy-row">
+      <button class="bbtn active" data-mode="1">×1</button>
+      <button class="bbtn" data-mode="10">×10</button>
+      <button class="bbtn" data-mode="100">×100</button>
+      <button class="bbtn" data-mode="0">МАКС</button>
+    </div>
+    <button id="prestige-btn">✦ ПЕРЕРОЖДЕНИЕ ✦</button>
+  </div>
+</div>
+<div id="notifs"></div>
+<div id="admin-overlay"></div>
+<div id="admin">
+  <button id="admin-x">✕</button>
+  <h2>⚙ ПАНЕЛЬ АДМИНИСТРАТОРА</h2>
+  <div class="arow"><label>Добавить золото:</label><input id="a-gold" type="number" value="1000000" placeholder="1000000"><button class="abtn" id="a-add-gold">+ Добавить</button></div>
+  <div class="arow"><label>Установить золото:</label><input id="a-set-gold" type="number" value="0"><button class="abtn" id="a-do-gold">Установить</button></div>
+  <div class="arow"><label>Прокачать улучшение:</label>
+    <select id="a-upg"></select>
+    <input id="a-upg-n" type="number" value="5" style="width:50px;flex:none;">
+    <button class="abtn" id="a-do-upg">+N</button>
+  </div>
+  <div class="arow"><label>Сменить фазу:</label>
+    <select id="a-phase"><option value="0">Герой</option><option value="1">Отряд</option><option value="2">Армия</option><option value="3">Магия</option><option value="4">Космос</option></select>
+    <button class="abtn" id="a-do-phase">Перейти</button>
+  </div>
+  <div class="arow"><label>Волна монстра:</label><input id="a-wave" type="number" value="1"><button class="abtn" id="a-do-wave">Установить</button></div>
+  <div class="arow"><label>Добавить престижей:</label><input id="a-prest" type="number" value="1"><button class="abtn" id="a-do-prest">Добавить</button></div>
+  <div class="arow">
+    <button class="abtn danger" id="a-reset" style="width:100%;text-align:center;">⚠ Сбросить всё</button>
+  </div>
+</div>
+
+<script>
+// ================================================================
+// THE MATH OF IDLE GAMES — Implementation
+// Source: Anthony Pecorella (Kongregate)
+// Cost: base * rate^level
+// Bulk: base*(rate^to - rate^from)/(rate-1)
+// DPS: scales linearly per level (+ milestone bonuses)
+// ================================================================
+
+const RATE = 1.15; // growth rate for upgrade costs
+
+function upgCost(base, lvl) {
+  return Math.floor(base * Math.pow(RATE, lvl));
+}
+function bulkCost(base, from, n) {
+  // Cost to buy n levels starting from 'from'
+  if (n <= 0) return 0;
+  return Math.floor(base * Math.pow(RATE, from) * (Math.pow(RATE, n) - 1) / (RATE - 1));
+}
+function maxBuy(base, lvl, gold) {
+  // Max levels affordable from current gold
+  const ratio = gold * (RATE - 1) / (base * Math.pow(RATE, lvl)) + 1;
+  if (ratio <= 0) return 0;
+  return Math.max(0, Math.floor(Math.log(ratio) / Math.log(RATE)));
+}
+
+function fmt(n) {
+  if (!isFinite(n) || isNaN(n)) return '0';
+  if (n < 1e3) return Math.floor(n).toString();
+  if (n < 1e6) return (n/1e3).toFixed(2)+'K';
+  if (n < 1e9) return (n/1e6).toFixed(2)+'M';
+  if (n < 1e12) return (n/1e9).toFixed(2)+'B';
+  if (n < 1e15) return (n/1e12).toFixed(2)+'T';
+  if (n < 1e18) return (n/1e15).toFixed(2)+'Qa';
+  if (n < 1e21) return (n/1e18).toFixed(2)+'Qi';
+  if (n < 1e24) return (n/1e21).toFixed(2)+'Sx';
+  if (n < 1e27) return (n/1e24).toFixed(2)+'Sp';
+  return n.toExponential(2);
+}
+
+// ================================================================
+// UPGRADE DEFINITIONS
+// Phase 0: Hero | 1: Squad | 2: Army | 3: Magic | 4: Galactic
+// ================================================================
+const UPGRADES = [
+  // PHASE 0 — HERO
+  {id:'weapon',   phase:0, name:'Оружие',         icon:'⚔', baseCost:10,      dps:1,         click:2,   desc:'Улучшает оружие. Вид меняется каждые 5 уровней.'},
+  {id:'armor',    phase:0, name:'Броня',           icon:'🛡', baseCost:50,      dps:3,         click:0,   desc:'Защитная броня. Увеличивает авто-ДПС.'},
+  {id:'shield',   phase:0, name:'Щит',             icon:'🔰', baseCost:120,     dps:5,         click:1,   desc:'Щит воина. Вид меняется каждые 5 уровней.'},
+  {id:'amulet',   phase:0, name:'Амулет',          icon:'💎', baseCost:300,     dps:12,        click:0,   desc:'Магический амулет. Мощный источник ДПС.'},
+  // PHASE 1 — SQUAD
+  {id:'warrior',  phase:1, name:'Воин',            icon:'⚔', baseCost:600,     dps:25,        click:0,   desc:'Тяжелобронированный воин отряда.'},
+  {id:'archer',   phase:1, name:'Лучник',          icon:'🏹', baseCost:2500,    dps:100,       click:0,   desc:'Меткий стрелок. Ранит издалека.'},
+  {id:'mage',     phase:1, name:'Маг',             icon:'🔮', baseCost:9000,    dps:450,       click:0,   desc:'Тёмный чародей. Сжигает всё.'},
+  {id:'rogue',    phase:1, name:'Тень',            icon:'🗡', baseCost:35000,   dps:2000,      click:0,   desc:'Убийца из мрака. Смертоносен.'},
+  // PHASE 2 — ARMY
+  {id:'infantry', phase:2, name:'Пехота',          icon:'⚔', baseCost:200000,  dps:12000,     click:0,   desc:'Батальон пехотинцев.'},
+  {id:'cavalry',  phase:2, name:'Кавалерия',       icon:'🐴', baseCost:800000,  dps:60000,     click:0,   desc:'Тяжёлая кавалерия армии тьмы.'},
+  {id:'siege',    phase:2, name:'Осадное оружие',  icon:'🏹', baseCost:3000000, dps:350000,    click:0,   desc:'Катапульты и баллисты.'},
+  {id:'warmage',  phase:2, name:'Боевой маг',      icon:'🔮', baseCost:12000000,dps:2000000,   click:0,   desc:'Маги войны уничтожают полки.'},
+  // PHASE 3 — MAGIC
+  {id:'fireball', phase:3, name:'Огненный шар',    icon:'🔥', baseCost:5e10,    dps:15000000,  click:0,   desc:'Заклинание Огня.'},
+  {id:'rift',     phase:3, name:'Разлом',          icon:'🌀', baseCost:2e11,    dps:1e8,       click:0,   desc:'Разрыв пространства.'},
+  {id:'soulstorm',phase:3, name:'Буря душ',        icon:'💀', baseCost:1e12,    dps:7e8,       click:0,   desc:'Буря поглощает души.'},
+  {id:'void',     phase:3, name:'Пустота',         icon:'✦',  baseCost:5e12,    dps:5e9,       click:0,   desc:'Заклинание Пустоты.'},
+  // PHASE 4 — GALACTIC
+  {id:'stellar',  phase:4, name:'Звёздная кузня',  icon:'⭐', baseCost:1e17,    dps:4e13,      click:0,   desc:'Forge of the Stars.'},
+  {id:'nebula',   phase:4, name:'Тёмная туманность',icon:'🌌',baseCost:5e17,    dps:3e14,      click:0,   desc:'Dark Nebula Cannon.'},
+  {id:'galaxy',   phase:4, name:'Галактика',       icon:'🌀', baseCost:2e18,    dps:2e15,      click:0,   desc:'Galaxy Devourer.'},
+  {id:'universe', phase:4, name:'Вселенная',       icon:'✦',  baseCost:1e19,    dps:2e16,      click:0,   desc:'Universe Collapse.'},
+];
+
+// Phase unlock thresholds (total gold spent)
+const PHASE_THRESHOLDS = [0, 1e6, 1e9, 1e12, 1e17];
+const PHASE_NAMES = ['ГЕРОЙ','ОТРЯД','АРМИЯ','МАГИЧЕСКАЯ СУЩНОСТЬ','ГАЛАКТИЧЕСКАЯ СУЩНОСТЬ'];
+const PHASE_NAMES_SHORT = ['ГЕРОЙ','ОТРЯД','АРМИЯ','МАГИЯ','КОСМОС'];
+
+// ================================================================
+// MONSTERS
+// ================================================================
+const MONSTERS = [
+  // Phase 0
+  [{name:'Гоблин',type:'goblin'},{name:'Орк',type:'orc'},{name:'Тролль',type:'troll'},
+   {name:'Огр',type:'ogre'},{name:'Тёмный рыцарь',type:'dknight'},{name:'Дракон',type:'dragon'}],
+  // Phase 1
+  [{name:'Скелет',type:'skeleton'},{name:'Зомби-орда',type:'zombie'},
+   {name:'Вампир',type:'vampire'},{name:'Лич',type:'lich'}],
+  // Phase 2
+  [{name:'Бес',type:'imp'},{name:'Демон',type:'demon'},
+   {name:'Великий демон',type:'gdemon'},{name:'Архидемон',type:'archdemon'}],
+  // Phase 3
+  [{name:'Пожиратель разума',type:'mindflayer'},{name:'Ужас извне',type:'eldritch'},
+   {name:'Внешний бог',type:'outergod'}],
+  // Phase 4
+  [{name:'Тёмная звезда',type:'darkstar'},{name:'Сущность пустоты',type:'void'},
+   {name:'Пожиратель вселенных',type:'devourer'}],
+];
+
+const BASE_HP = 20;
+const HP_GROWTH = 1.25;
+const BASE_GOLD = 5;
+const GOLD_GROWTH = 1.15;
+const PHASE_HP_MULT = [1, 1e4, 1e8, 1e14, 1e20];
+
+// ================================================================
+// GAME STATE
+// ================================================================
+let G = {
+  gold: 0,
+  goldSpent: 0,
+  phase: 0,
+  kills: 0,
+  wave: 1,
+  prestigeCount: 0,
+  prestigeMult: 1,
+  levels: {},
+  monHP: 0,
+  monMaxHP: 0,
+  lastSave: Date.now(),
+};
+UPGRADES.forEach(u => G.levels[u.id] = 0);
+
+// ================================================================
+// SPRITE SVG GENERATORS (Kenney Roguelike Style — Dark Fantasy)
+// ================================================================
+
+// Pixel helper: draw rect in SVG pixel art style
+function px(x,y,w,h,c) { return `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${c}"/>`; }
+
+function weaponSVG(tier) {
+  // tier 0-5 weapon sprite (side view, ~40x80 space)
+  const t = Math.min(5, tier);
+  const svgs = [
+    // T0: Dagger
+    `<g>${px(19,25,4,2,'#888')}${px(18,27,6,20,'#aaa')}${px(19,47,4,5,'#664')}${px(17,44,8,3,'#777')}</g>`,
+    // T1: Sword
+    `<g>${px(19,15,4,2,'#999')}${px(18,17,6,35,'#c8c8c0')}${px(15,50,12,4,'#aaa')}${px(19,54,4,8,'#775')}
+     ${px(20,28,2,15,'rgba(220,240,255,0.4)')}</g>`,
+    // T2: Longsword (wider)
+    `<g>${px(19,8,4,2,'#aaa')}${px(17,10,8,45,'#d0d5e0')}${px(14,53,14,4,'#bbb')}${px(18,57,6,9,'#886')}
+     ${px(20,20,2,25,'rgba(200,230,255,0.5)')}${px(17,10,2,45,'rgba(255,255,255,0.15)')}</g>`,
+    // T3: Enchanted (blue glow)
+    `<g><defs><filter id="bg"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+     ${px(19,6,4,2,'#90b0f0')}${px(17,8,8,48,'#a0c0ff')}${px(14,54,14,4,'#8899cc')}${px(18,58,6,10,'#335')}
+     <rect x="17" y="8" width="8" height="48" fill="rgba(100,150,255,0.25)" filter="url(#bg)"/>
+     ${px(20,18,2,28,'rgba(180,220,255,0.7)')}</g>`,
+    // T4: Demonic (red glow, jagged)
+    `<g><defs><filter id="rg"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+     ${px(19,4,4,2,'#cc2020')}${px(17,6,8,50,'#dd3030')}
+     <polygon points="17,20 12,28 17,36" fill="#aa1818"/>
+     <polygon points="25,16 30,24 25,32" fill="#aa1818"/>
+     ${px(13,54,16,4,'#881818')}${px(18,58,6,10,'#440')}
+     <rect x="15" y="6" width="12" height="50" fill="rgba(255,60,20,0.2)" filter="url(#rg)"/></g>`,
+    // T5: Death Scythe (purple)
+    `<g><defs><filter id="pg"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+     ${px(20,10,2,60,'#222')}
+     <path d="M 20,10 Q 45,18 38,40 L 22,36 Q 32,20 20,18 Z" fill="#7020a0"/>
+     <path d="M 20,10 Q 45,18 38,40" stroke="rgba(180,80,255,0.6)" stroke-width="2" fill="none"/>
+     <rect x="15" y="8" width="30" height="36" fill="rgba(140,40,200,0.15)" filter="url(#pg)"/>
+     ${px(19,70,4,4,'#331')}</g>`,
+  ];
+  return svgs[t];
+}
+
+function armorColor(tier) {
+  const c = [
+    {body:'#5a4030',plate:'#6a5040',edge:'#8a6050',helm:'#4a3020'},
+    {body:'#3a2818',plate:'#4a3828',edge:'#6a4838',helm:'#2a2010'},
+    {body:'#505060',plate:'#707080',edge:'#909090',helm:'#404050'},
+    {body:'#506070',plate:'#708090',edge:'#90a0b0',helm:'#405060'},
+    {body:'#151525',plate:'#252540',edge:'#354060',helm:'#101020'},
+    {body:'#080810',plate:'#12121a',edge:'#1a1a28',helm:'#050508'},
+  ];
+  return c[Math.min(5, tier)];
+}
+
+function heroSVG(wTier, aTier, sTier, amTier) {
+  const ac = armorColor(aTier);
+  const wt = Math.min(5, wTier);
+  const st = Math.min(5, sTier);
+  // Shield colors by tier
+  const shieldColors = ['#8B4513','#777','#aaa','#6080cc','#202030','#080810'];
+  const shieldEdge    = ['#6a3010','#555','#eee','#90b0ff','#303050','#151525'];
+  const sc = shieldColors[st];
+  const se = shieldEdge[st];
+  // Eye color based on total tier
+  const totalTier = Math.floor((wTier+aTier)/10);
+  const eyeColor = totalTier>=4?'#ff3030':totalTier>=2?'#cc6020':'#eeeecc';
+  // Skin
+  const skin = aTier>=4?'#303030':aTier>=2?'#c0a888':'#d0b090';
+  // Glow filter for high tiers
+  const needGlow = wt>=3||aTier>=4;
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 130" width="160" height="210">
+  ${needGlow?`<defs><filter id="hg"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>`:''}
+  <!-- Shadow -->
+  <ellipse cx="40" cy="126" rx="22" ry="5" fill="rgba(0,0,0,0.4)"/>
+  <!-- LEGS -->
+  ${px(24,92,13,28,ac.body)}${px(43,92,13,28,ac.body)}
+  <!-- Boots -->
+  ${px(22,112,16,10,aTier>=3?'#1a1a1a':'#2a1a10')}${px(42,112,16,10,aTier>=3?'#1a1a1a':'#2a1a10')}
+  <!-- Belt -->
+  ${px(20,90,40,6,'#3a2a18')}
+  <!-- BODY -->
+  ${px(18,52,44,42,ac.body)}
+  <!-- Chest plate detail -->
+  ${px(22,56,36,30,ac.plate)}
+  ${px(25,58,30,2,ac.edge)}
+  <!-- LEFT ARM (shield arm) -->
+  ${px(4,54,14,36,ac.body)}
+  ${px(4,54,14,4,ac.plate)}
+  <!-- RIGHT ARM (weapon arm) -->
+  ${px(62,54,14,36,ac.body)}
+  ${px(62,54,14,4,ac.plate)}
+  <!-- SHIELD (left) -->
+  ${st>=4?
+    `<polygon points="2,62 2,90 10,96 18,90 18,62 10,56" fill="${sc}" stroke="${se}" stroke-width="1.5"/>
+     ${px(7,65,6,26,'rgba(255,255,255,0.05)')}`:
+  st>=2?
+    `<polygon points="3,60 3,92 10,98 17,92 17,60" fill="${sc}" stroke="${se}" stroke-width="1.5"/>`:
+    `<rect x="3" y="62" width="14" height="26" fill="${sc}" stroke="${se}" stroke-width="1" rx="2"/>`
+  }
+  ${st>=1?px(8,70,4,16,se):''}
+  <!-- HEAD -->
+  ${px(20,16,40,38,skin)}
+  <!-- Helmet/Hair -->
+  ${aTier>=2?
+    `${px(18,10,44,16,ac.helm)}${px(16,16,4,22,ac.helm)}${px(60,16,4,22,ac.helm)}`:
+    `${px(18,10,44,12,'#2a1a10')}${px(16,14,4,8,'#2a1a10')}`
+  }
+  <!-- Eyes -->
+  ${px(25,28,8,6,eyeColor)}${px(47,28,8,6,eyeColor)}
+  <!-- Eye shine -->
+  ${px(26,29,2,2,'rgba(255,255,255,0.6)')}${px(48,29,2,2,'rgba(255,255,255,0.6)')}
+  <!-- Mouth -->
+  ${aTier>=4?`<rect x="28" y="42" width="4" height="2" fill="#440000"/><rect x="34" y="42" width="4" height="2" fill="#440000"/><rect x="40" y="42" width="4" height="2" fill="#440000"/>`:
+   px(28,42,24,2,'rgba(0,0,0,0.3)')}
+  <!-- Armor decorations based on tier -->
+  ${aTier>=1?`${px(30,60,20,1,ac.edge)}${px(30,68,20,1,ac.edge)}`:''}
+  ${aTier>=3?`${px(24,64,4,4,ac.edge)}${px(52,64,4,4,ac.edge)}`:''}
+  ${aTier>=5?`<circle cx="40" cy="65" r="5" fill="rgba(100,0,150,0.5)"/><circle cx="40" cy="65" r="3" fill="rgba(150,0,200,0.3)"/>`:''}
+  <!-- Amulet glow (amulet tier >= 1) -->
+  ${amTier>=1?`<circle cx="40" cy="52" r="${3+amTier}" fill="rgba(${amTier>=4?'200,160,0':amTier>=3?'100,0,180':amTier>=2?'0,80,200':'0,140,80'},0.${3+amTier})"/>`:'' }
+  <!-- WEAPON (right side) -->
+  <g transform="translate(40,30)">${weaponSVG(wTier)}</g>
+  <!-- High tier aura -->
+  ${wt>=5||aTier>=5?`<ellipse cx="40" cy="60" rx="38" ry="60" fill="rgba(100,0,180,0.05)" filter="url(#hg)"/>`:''}
+</svg>`;
+}
+
+// ---- MONSTER SVGs ----
+function monsterSVG(type) {
+  const m = {
+    goblin:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 100" width="150" height="150">
+      <ellipse cx="40" cy="97" rx="20" ry="4" fill="rgba(0,0,0,0.4)"/>
+      ${px(28,66,10,28,'#3a6a2a')}${px(42,66,10,28,'#3a6a2a')}
+      ${px(26,76,14,8,'#2a4a1a')}${px(40,76,14,8,'#2a4a1a')}
+      ${px(20,34,40,36,'#4a8030')}
+      ${px(8,38,14,24,'#4a8030')}${px(58,38,14,24,'#4a8030')}
+      ${px(20,4,40,32,'#5a9040')}
+      ${px(18,2,8,12,'#3a6a2a')}${px(54,2,8,12,'#3a6a2a')}
+      ${px(24,16,10,8,'#cc2a10')}${px(46,16,10,8,'#cc2a10')}
+      ${px(25,17,4,4,'rgba(255,255,255,0.9)')}${px(47,17,4,4,'rgba(255,255,255,0.9)')}
+      ${px(28,28,6,4,'#1a1a0a')}${px(46,28,6,4,'#1a1a0a')}
+      <polygon points="26,34 30,40 22,40" fill="#3a6020"/>
+      ${px(32,58,16,4,'#2a1a0a')}
+      <polygon points="30,60 35,70 25,70" fill="#886644"/>
+    </svg>`,
+    orc:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 110" width="150" height="150">
+      <ellipse cx="40" cy="107" rx="24" ry="5" fill="rgba(0,0,0,0.4)"/>
+      ${px(24,72,14,32,'#556644')}${px(42,72,14,32,'#556644')}
+      ${px(22,82,16,10,'#2a3a1a')}${px(42,82,16,10,'#2a3a1a')}
+      ${px(16,38,48,40,'#5a6a4a')}
+      ${px(4,42,14,30,'#5a6a4a')}${px(62,42,14,30,'#5a6a4a')}
+      ${px(16,4,48,38,'#6a7a5a')}
+      ${px(22,18,12,10,'#cc3010')}${px(46,18,12,10,'#cc3010')}
+      ${px(24,19,5,6,'rgba(255,255,255,0.9)')}${px(51,19,5,6,'rgba(255,255,255,0.9)')}
+      ${px(26,32,10,5,'#1a1a0a')}${px(44,32,10,5,'#1a1a0a')}
+      <polygon points="34,40 40,48 28,48" fill="#445533"/>
+      <polygon points="46,40 52,48 40,48" fill="#445533"/>
+      ${px(28,52,24,6,'#3a2a18')}
+      <polygon points="32,58 38,68 26,68" fill="#996633"/>
+      <polygon points="48,58 54,68 42,68" fill="#996633"/>
+      ${px(4,50,12,6,'#666')}${px(64,50,12,6,'#666')}
+    </svg>`,
+    troll:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 90 120" width="155" height="155">
+      <ellipse cx="45" cy="117" rx="28" ry="5" fill="rgba(0,0,0,0.5)"/>
+      ${px(26,78,16,36,'#5a6040')}${px(48,78,16,36,'#5a6040')}
+      ${px(24,88,18,12,'#3a4030')}${px(48,88,18,12,'#3a4030')}
+      ${px(14,42,62,44,'#6a7050')}
+      ${px(2,46,16,36,'#6a7050')}${px(72,46,16,36,'#6a7050')}
+      ${px(14,6,62,40,'#7a8060')}
+      ${px(20,20,14,12,'#bb2808')}${px(46,20,14,12,'#bb2808')}
+      ${px(22,22,6,7,'rgba(255,255,255,0.9)')}${px(52,22,6,7,'rgba(255,255,255,0.9)')}
+      ${px(24,36,14,6,'#1a1a0a')}${px(52,36,14,6,'#1a1a0a')}
+      <polygon points="38,46 48,58 28,58" fill="#545840"/>
+      <polygon points="42,46 52,58 62,58" fill="#545840"/>
+      ${px(6,56,12,8,'#7a7a60')}${px(72,56,12,8,'#7a7a60')}
+    </svg>`,
+    ogre:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 130" width="160" height="160">
+      <ellipse cx="50" cy="127" rx="32" ry="6" fill="rgba(0,0,0,0.5)"/>
+      ${px(28,84,18,40,'#7a5030')}${px(54,84,18,40,'#7a5030')}
+      ${px(26,96,22,14,'#4a3020')}${px(52,96,22,14,'#4a3020')}
+      ${px(12,44,76,48,'#8a6040')}
+      ${px(0,50,16,40,'#8a6040')}${px(84,50,16,40,'#8a6040')}
+      ${px(12,6,76,44,'#9a7050')}
+      ${px(16,20,16,14,'#cc2010')}${px(68,20,16,14,'#cc2010')}
+      ${px(18,22,7,9,'rgba(255,255,255,0.9)')}${px(75,22,7,9,'rgba(255,255,255,0.9)')}
+      ${px(22,40,16,7,'#1a0a0a')}${px(62,40,16,7,'#1a0a0a')}
+      ${px(0,62,14,10,'#aa8855')}${px(86,62,14,10,'#aa8855')}
+      <polygon points="36,50 50,64 22,64" fill="#7a5030"/>
+      <polygon points="64,50 78,64 50,64" fill="#7a5030"/>
+    </svg>`,
+    dknight:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 130" width="155" height="155">
+      <defs><filter id="dk"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+      <ellipse cx="40" cy="127" rx="22" ry="5" fill="rgba(0,0,0,0.5)"/>
+      ${px(24,90,12,32,'#1a1a28')}${px(44,90,12,32,'#1a1a28')}
+      ${px(22,108,16,12,'#101018')}${px(42,108,16,12,'#101018')}
+      ${px(18,50,44,44,'#1e1e30')}
+      ${px(6,54,14,36,'#1e1e30')}${px(60,54,14,36,'#1e1e30')}
+      <!-- Shoulder spikes -->
+      <polygon points="6,54 6,46 14,54" fill="#cc1a1a"/>
+      <polygon points="74,54 74,46 66,54" fill="#cc1a1a"/>
+      ${px(18,10,44,44,'#1e1e30')}
+      <!-- Helm -->
+      ${px(16,6,48,18,'#141420')}${px(20,4,40,8,'#141420')}
+      <!-- Visor slit -->
+      ${px(22,20,12,4,'#cc0000')}${px(46,20,12,4,'#cc0000')}
+      <!-- Chest runes -->
+      ${px(30,62,6,2,'#cc1a1a')}${px(44,62,6,2,'#cc1a1a')}
+      ${px(30,68,20,1,'#881010')}
+      <!-- Red glow -->
+      <rect x="18" y="10" width="44" height="110" fill="rgba(180,0,0,0.08)" filter="url(#dk)"/>
+      <!-- Weapon -->
+      ${px(62,10,6,70,'#2a2a3a')}${px(58,22,14,4,'#1a1a28')}
+      <rect x="60" y="10" width="8" height="74" fill="rgba(180,0,0,0.25)" filter="url(#dk)"/>
+    </svg>`,
+    dragon:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="165" height="165">
+      <defs><filter id="fire"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+      <ellipse cx="60" cy="116" rx="36" ry="6" fill="rgba(0,0,0,0.5)"/>
+      <!-- Tail -->
+      <path d="M 10,90 Q 30,110 50,100 Q 60,95 50,80" stroke="#8a1a1a" stroke-width="12" fill="none" stroke-linecap="round"/>
+      <!-- Body -->
+      ${px(30,50,60,50,'#8a1a1a')}
+      <!-- Belly -->
+      ${px(38,60,44,36,'#cc6030')}
+      <!-- Wings -->
+      <polygon points="30,50 0,20 30,70" fill="#6a1010"/>
+      <polygon points="90,50 120,20 90,70" fill="#6a1010"/>
+      <polygon points="30,50 10,30 30,60" fill="rgba(255,100,20,0.3)" filter="url(#fire)"/>
+      <!-- Neck -->
+      ${px(42,26,36,28,'#8a1a1a')}
+      <!-- Head -->
+      ${px(36,6,48,26,'#9a2020')}
+      <!-- Horns -->
+      <polygon points="40,6 34,0 44,14" fill="#551010"/>
+      <polygon points="80,6 86,0 76,14" fill="#551010"/>
+      <!-- Eyes -->
+      ${px(40,14,10,8,'#ff8800')}${px(70,14,10,8,'#ff8800')}
+      ${px(42,16,4,4,'#ffcc00')}${px(72,16,4,4,'#ffcc00')}
+      <!-- Snout -->
+      ${px(44,26,32,10,'#aa3030')}
+      <!-- Nostrils fire -->
+      <ellipse cx="52" cy="36" rx="4" ry="3" fill="rgba(255,100,0,0.6)" filter="url(#fire)"/>
+      <ellipse cx="68" cy="36" rx="4" ry="3" fill="rgba(255,100,0,0.6)" filter="url(#fire)"/>
+      <!-- Claws -->
+      ${px(30,96,10,12,'#551010')}${px(80,96,10,12,'#551010')}
+    </svg>`,
+    skeleton:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 70 120" width="150" height="150">
+      <ellipse cx="35" cy="117" rx="18" ry="4" fill="rgba(0,0,0,0.4)"/>
+      ${px(22,82,10,32,'#d8d0b8')}${px(38,82,10,32,'#d8d0b8')}
+      ${px(20,92,14,8,'#c0b8a0')}${px(36,92,14,8,'#c0b8a0')}
+      ${px(16,44,38,42,'#d0c8b0')}
+      ${px(4,48,14,32,'#d0c8b0')}${px(52,48,14,32,'#d0c8b0')}
+      <!-- Ribs -->
+      ${[0,1,2,3].map(i=>`${px(18,52+i*7,34,3,'rgba(0,0,0,0.2)')}`).join('')}
+      ${px(16,8,38,38,'#c8c0a8')}
+      <!-- Eye sockets -->
+      ${px(20,18,10,10,'#1a1010')}${px(40,18,10,10,'#1a1010')}
+      <!-- Glowing eyes -->
+      <circle cx="25" cy="23" r="3" fill="#8800ff"/>
+      <circle cx="45" cy="23" r="3" fill="#8800ff"/>
+      <!-- Jaw -->
+      ${px(20,36,30,6,'#c8c0a8')}
+      ${[0,1,2].map(i=>`${px(22+i*8,38,5,4,'#1a1010')}`).join('')}
+      <!-- Sword -->
+      ${px(60,12,5,55,'#888')}${px(56,24,13,3,'#666')}${px(59,28,7,6,'#553')}
+    </svg>`,
+    zombie:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 120" width="150" height="150">
+      <ellipse cx="40" cy="117" rx="22" ry="4" fill="rgba(0,0,0,0.4)"/>
+      ${px(26,80,12,34,'#556640')}${px(42,80,12,34,'#556640')}
+      ${px(24,90,14,10,'#3a4a2a')}${px(42,90,14,10,'#3a4a2a')}
+      ${px(18,42,44,42,'#687858')}
+      <!-- Arms stretched forward -->
+      <rect x="0" y="44" width="20" height="10" fill="#687858" rx="3"/>
+      <rect x="60" y="44" width="20" height="10" fill="#687858" rx="3"/>
+      ${px(18,8,44,38,'#788868')}
+      ${px(22,20,12,10,'#aa1a1a')}${px(46,20,12,10,'#aa1a1a')}
+      ${px(24,22,5,7,'rgba(255,255,255,0.6)')}${px(50,22,5,7,'rgba(255,255,255,0.6)')}
+      ${px(26,36,8,5,'#1a1a0a')}${px(46,36,8,5,'#1a1a0a')}
+      <!-- Wounds -->
+      ${px(28,52,6,3,'#aa1010')}${px(46,58,5,3,'#aa1010')}
+    </svg>`,
+    vampire:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 130" width="155" height="155">
+      <defs><filter id="vg"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+      <ellipse cx="40" cy="127" rx="20" ry="4" fill="rgba(0,0,0,0.4)"/>
+      ${px(26,90,12,34,'#1a0a18')}${px(42,90,12,34,'#1a0a18')}
+      <!-- Cape -->
+      <polygon points="10,48 40,128 70,128 70,48" fill="#1a0a20"/>
+      <polygon points="10,48 40,128 40,48" fill="#2a1030"/>
+      ${px(18,50,44,44,'#1a0a18')}
+      ${px(8,54,12,36,'#1a0a18')}${px(60,54,12,36,'#1a0a18')}
+      ${px(18,10,44,44,'#908080')}
+      <!-- Slicked hair -->
+      ${px(16,6,48,14,'#0a0a14')}${px(20,4,40,8,'#0a0a14')}
+      <!-- Eyes red -->
+      ${px(22,24,12,8,'#cc0000')}${px(46,24,12,8,'#cc0000')}
+      <rect x="18" y="18" width="44" height="40" fill="rgba(180,0,0,0.1)" filter="url(#vg)"/>
+      <!-- Fangs -->
+      <polygon points="34,40 31,48 37,48" fill="#eee"/>
+      <polygon points="46,40 43,48 49,48" fill="#eee"/>
+      ${px(26,38,8,4,'#1a0a0a')}${px(46,38,8,4,'#1a0a0a')}
+      <!-- Blood on chin -->
+      ${px(34,48,6,4,'#cc0000')}
+    </svg>`,
+    lich:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 130" width="155" height="155">
+      <defs><filter id="lg"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+      <ellipse cx="40" cy="127" rx="18" ry="4" fill="rgba(0,0,0,0.4)"/>
+      ${px(27,90,10,34,'#d0c8b0')}${px(43,90,10,34,'#d0c8b0')}
+      ${px(24,50,32,45,'#2a1a40')}
+      <!-- Robe -->
+      <polygon points="18,60 40,128 62,128 62,60" fill="#1a1028"/>
+      ${px(6,54,14,40,'#2a1a40')}${px(60,54,14,40,'#2a1a40')}
+      ${px(18,4,44,50,'#c8c0a8')}
+      <!-- Lich crown -->
+      ${px(16,2,48,8,'#9020c0')}
+      <polygon points="22,2 26,0 30,2" fill="#c030f0"/>
+      <polygon points="38,2 42,0 46,2" fill="#c030f0"/>
+      <polygon points="54,2 58,0 62,2" fill="#c030f0"/>
+      <!-- Empty eye sockets -->
+      ${px(22,16,12,10,'#0a0a0a')}${px(46,16,12,10,'#0a0a0a')}
+      <circle cx="28" cy="21" r="4" fill="#9020c0"/>
+      <circle cx="52" cy="21" r="4" fill="#9020c0"/>
+      <rect x="16" y="2" width="48" height="54" fill="rgba(140,20,200,0.2)" filter="url(#lg)"/>
+      <!-- Staff -->
+      ${px(64,4,4,90,'#4a3020')}
+      <circle cx="66" cy="4" r="8" fill="rgba(100,0,180,0.4)" filter="url(#lg)"/>
+      <circle cx="66" cy="4" r="5" fill="#7020b0"/>
+    </svg>`,
+    imp:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 70 100" width="140" height="140">
+      <defs><filter id="ig"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+      <ellipse cx="35" cy="97" rx="16" ry="4" fill="rgba(0,0,0,0.4)"/>
+      ${px(24,70,8,25,'#8a1a1a')}${px(38,70,8,25,'#8a1a1a')}
+      ${px(20,36,30,38,'#aa2020')}
+      <!-- Wings -->
+      <polygon points="20,42 0,24 20,56" fill="#6a0808"/>
+      <polygon points="50,42 70,24 50,56" fill="#6a0808"/>
+      <polygon points="20,42 4,28 20,50" fill="rgba(255,50,0,0.2)" filter="url(#ig)"/>
+      ${px(20,6,30,34,'#bb2828')}
+      <!-- Horns -->
+      <polygon points="22,6 18,0 26,10" fill="#551010"/>
+      <polygon points="48,6 52,0 44,10" fill="#551010"/>
+      <!-- Eyes -->
+      ${px(24,14,8,6,'#ff4400')}${px(38,14,8,6,'#ff4400')}
+      ${px(25,15,3,3,'#ffaa00')}${px(39,15,3,3,'#ffaa00')}
+      ${px(24,26,6,3,'#1a0a0a')}${px(40,26,6,3,'#1a0a0a')}
+      <!-- Tail -->
+      <path d="M 35,78 Q 20,90 25,98" stroke="#8a1a1a" stroke-width="4" fill="none"/>
+      <polygon points="22,95 25,98 28,93" fill="#661010"/>
+    </svg>`,
+    demon:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 90 130" width="160" height="160">
+      <defs><filter id="dg"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+      <ellipse cx="45" cy="127" rx="26" ry="5" fill="rgba(0,0,0,0.5)"/>
+      ${px(28,88,14,36,'#771010')}${px(48,88,14,36,'#771010')}
+      ${px(26,100,16,12,'#550808')}${px(48,100,16,12,'#550808')}
+      ${px(14,44,62,50,'#881818')}
+      ${px(2,48,16,44,'#881818')}${px(72,48,16,44,'#881818')}
+      <!-- Wings -->
+      <polygon points="14,44 0,10 22,60" fill="#5a0a0a"/>
+      <polygon points="76,44 90,10 68,60" fill="#5a0a0a"/>
+      ${px(14,6,62,44,'#991a1a')}
+      <!-- Horns -->
+      <polygon points="22,6 14,0 28,18" fill="#660808"/>
+      <polygon points="68,6 76,0 62,18" fill="#660808"/>
+      ${px(22,20,16,12,'#ff2200')}${px(52,20,16,12,'#ff2200')}
+      ${px(24,22,8,8,'rgba(255,255,255,0.8)')}${px(54,22,8,8,'rgba(255,255,255,0.8)')}
+      ${px(26,38,12,6,'#2a0a0a')}${px(52,38,12,6,'#2a0a0a')}
+      <!-- Chest rune -->
+      ${px(36,58,18,2,'#ff4400')}${px(44,52,2,14,'#ff4400')}
+      <rect x="14" y="6" width="62" height="122" fill="rgba(255,50,0,0.06)" filter="url(#dg)"/>
+      <!-- Claws -->
+      ${px(2,80,12,6,'#440808')}${px(76,80,12,6,'#440808')}
+    </svg>`,
+    gdemon:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 140" width="165" height="165">
+      <defs><filter id="gdg"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+      <ellipse cx="50" cy="136" rx="30" ry="6" fill="rgba(0,0,0,0.5)"/>
+      ${px(30,94,16,40,'#660a0a')}${px(54,94,16,40,'#660a0a')}
+      ${px(16,48,68,54,'#771212')}
+      ${px(2,52,18,50,'#771212')}${px(80,52,18,50,'#771212')}
+      <polygon points="16,48 0,8 26,66" fill="#4a0808"/>
+      <polygon points="84,48 100,8 74,66" fill="#4a0808"/>
+      ${px(16,6,68,48,'#882020')}
+      <polygon points="22,6 12,0 30,20" fill="#550a0a"/>
+      <polygon points="78,6 88,0 70,20" fill="#550a0a"/>
+      <polygon points="44,2 50,0 56,2 50,10" fill="#550a0a"/>
+      ${px(22,22,18,14,'#ff1a00')}${px(60,22,18,14,'#ff1a00')}
+      ${px(24,24,10,10,'rgba(255,255,255,0.8)')}${px(62,24,10,10,'rgba(255,255,255,0.8)')}
+      <rect x="16" y="6" width="68" height="134" fill="rgba(255,40,0,0.08)" filter="url(#gdg)"/>
+      ${px(38,64,24,3,'#ff3300')}${px(48,56,4,18,'#ff3300')}
+      ${px(2,86,14,8,'#440808')}${px(84,86,14,8,'#440808')}
+    </svg>`,
+    archdemon:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 110 150" width="170" height="170">
+      <defs><filter id="adg"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+      <ellipse cx="55" cy="146" rx="34" ry="7" fill="rgba(0,0,0,0.6)"/>
+      ${px(34,100,18,44,'#550808')}${px(58,100,18,44,'#550808')}
+      ${px(18,52,74,58,'#661010')}
+      ${px(2,56,20,56,'#661010')}${px(88,56,20,56,'#661010')}
+      <polygon points="18,52 0,6 30,72" fill="#3a0606"/>
+      <polygon points="92,52 110,6 80,72" fill="#3a0606"/>
+      <polygon points="18,52 10,20 26,60" fill="rgba(255,30,0,0.25)" filter="url(#adg)"/>
+      ${px(18,6,74,52,'#772020')}
+      <polygon points="24,6 12,0 32,22" fill="#440808"/>
+      <polygon points="86,6 98,0 78,22" fill="#440808"/>
+      <polygon points="44,2 55,0 66,2 55,12" fill="#440808"/>
+      ${px(24,24,20,16,'#ff0000')}${px(66,24,20,16,'#ff0000')}
+      ${px(26,26,12,12,'rgba(255,255,255,0.9)')}${px(68,26,12,12,'rgba(255,255,255,0.9)')}
+      ${px(26,46,16,7,'#2a0808')}${px(68,46,16,7,'#2a0808')}
+      <rect x="18" y="6" width="74" height="144" fill="rgba(255,20,0,0.12)" filter="url(#adg)"/>
+      ${px(42,68,26,4,'#ff2200')}${px(54,58,6,22,'#ff2200')}
+      <circle cx="55" cy="68" r="12" fill="rgba(255,50,0,0.3)" filter="url(#adg)"/>
+    </svg>`,
+    mindflayer:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 90 130" width="158" height="158">
+      <defs><filter id="mfg"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+      <ellipse cx="45" cy="126" rx="24" ry="5" fill="rgba(0,0,0,0.5)"/>
+      ${px(28,90,12,34,'#3a1050')}${px(50,90,12,34,'#3a1050')}
+      ${px(16,46,58,50,'#4a1a60')}
+      ${px(4,50,16,40,'#4a1a60')}${px(70,50,16,40,'#4a1a60')}
+      ${px(16,8,58,44,'#5a2070')}
+      <!-- Tentacle face -->
+      ${[-14,-7,0,7,14].map((x,i)=>`<path d="M ${45+x},52 Q ${45+x-4},70 ${45+x+2},78" stroke="#3a1050" stroke-width="4" fill="none"/>`).join('')}
+      <!-- Head dome -->
+      <ellipse cx="45" cy="28" rx="28" ry="22" fill="#5a2070"/>
+      ${px(28,20,14,12,'#cc00ff')}${px(48,20,14,12,'#cc00ff')}
+      ${px(30,22,8,8,'rgba(255,255,255,0.7)')}${px(50,22,8,8,'rgba(255,255,255,0.7)')}
+      <rect x="16" y="8" width="58" height="120" fill="rgba(150,0,220,0.15)" filter="url(#mfg)"/>
+    </svg>`,
+    eldritch:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 110 130" width="162" height="162">
+      <defs><filter id="eg"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+      <ellipse cx="55" cy="126" rx="32" ry="6" fill="rgba(0,0,0,0.5)"/>
+      <!-- Tentacles -->
+      ${[0,1,2,3,4,5].map(i=>{
+        const x=20+i*16,wobble=(i%2?1:-1)*10;
+        return `<path d="M ${x},110 Q ${x+wobble},90 ${x-wobble},70 Q ${x+wobble},50 ${x},30" stroke="#2a0a40" stroke-width="${4+i%3}" fill="none"/>`;
+      }).join('')}
+      <!-- Body mass -->
+      ${px(10,40,90,70,'#1a0a30')}
+      <!-- Eye clusters -->
+      ${[0,1,2,3,4].map(i=>{
+        const ex=22+i*16,ey=48+((i*7)%20);
+        return `<circle cx="${ex}" cy="${ey}" r="8" fill="#0a0010"/><circle cx="${ex}" cy="${ey}" r="5" fill="#8800cc"/><circle cx="${ex}" cy="${ey}" r="2" fill="#ffffff"/>`;
+      }).join('')}
+      <rect x="10" y="30" width="90" height="90" fill="rgba(100,0,200,0.15)" filter="url(#eg)"/>
+    </svg>`,
+    outergod:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 140" width="168" height="168">
+      <defs>
+        <filter id="ogg"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        <radialGradient id="ogr" cx="50%" cy="50%"><stop offset="0%" stop-color="#200040"/><stop offset="100%" stop-color="#050008"/></radialGradient>
+      </defs>
+      <ellipse cx="60" cy="134" rx="36" ry="7" fill="rgba(0,0,0,0.6)"/>
+      <!-- Core -->
+      <ellipse cx="60" cy="70" rx="50" ry="55" fill="url(#ogr)"/>
+      <!-- Radiating tentacles -->
+      ${[0,1,2,3,4,5,6,7].map(i=>{
+        const a=i*45,r=55,x=60+Math.cos(a*Math.PI/180)*r,y=70+Math.sin(a*Math.PI/180)*r;
+        return `<path d="M 60,70 Q ${60+(x-60)*0.5+((i%2)*20-10)},${70+(y-70)*0.5} ${x},${y}" stroke="#5500aa" stroke-width="${3+i%3}" fill="none"/>
+        <circle cx="${x}" cy="${y}" r="${4+i%3}" fill="#8800dd"/>`;
+      }).join('')}
+      <!-- Many eyes -->
+      ${[0,1,2,3,4,5].map(i=>{
+        const ex=25+i*18,ey=40+((i*13)%40);
+        return `<circle cx="${ex}" cy="${ey}" r="10" fill="#0a0015"/><circle cx="${ex}" cy="${ey}" r="6" fill="#aa00ff"/><circle cx="${ex}" cy="${ey}" r="2" fill="#ffffff"/>`;
+      }).join('')}
+      <ellipse cx="60" cy="70" rx="50" ry="55" fill="rgba(140,0,255,0.15)" filter="url(#ogg)"/>
+    </svg>`,
+    darkstar:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="165" height="165">
+      <defs>
+        <filter id="dsg"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        <radialGradient id="dsr"><stop offset="0%" stop-color="#1a0030"/><stop offset="100%" stop-color="#000005"/></radialGradient>
+      </defs>
+      <circle cx="60" cy="60" r="55" fill="url(#dsr)"/>
+      ${[0,1,2,3,4,5,6,7,8,9,10,11].map(i=>{
+        const a=i*30,r=50,x=60+Math.cos(a*Math.PI/180)*r,y=60+Math.sin(a*Math.PI/180)*r;
+        return `<line x1="60" y1="60" x2="${x}" y2="${y}" stroke="#5500aa" stroke-width="2"/>
+        <circle cx="${x}" cy="${y}" r="3" fill="#8800cc"/>`;
+      }).join('')}
+      <circle cx="60" cy="60" r="25" fill="#0a0020"/>
+      <circle cx="60" cy="60" r="15" fill="#220044"/>
+      <circle cx="60" cy="60" r="8" fill="#4400aa"/>
+      <circle cx="60" cy="60" r="55" fill="rgba(80,0,160,0.2)" filter="url(#dsg)"/>
+    </svg>`,
+    void:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 140" width="165" height="165">
+      <defs>
+        <filter id="vog"><feGaussianBlur stdDeviation="7" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      </defs>
+      <ellipse cx="60" cy="136" rx="30" ry="6" fill="rgba(0,0,0,0.5)"/>
+      <!-- Void rift body -->
+      <ellipse cx="60" cy="70" rx="52" ry="62" fill="#000005"/>
+      <!-- Event horizon ring -->
+      ${[0,5,10,15].map(d=>`<ellipse cx="60" cy="70" rx="${52-d}" ry="${62-d}" fill="none" stroke="rgba(${80+d*8},0,${160+d*6},${0.3-d*0.015})" stroke-width="2"/>`).join('')}
+      <!-- Star particles being consumed -->
+      ${[...Array(16)].map((_,i)=>{
+        const a=i*22.5,r=40+((i*7)%20);
+        const x=60+Math.cos(a*Math.PI/180)*r,y=70+Math.sin(a*Math.PI/180)*r;
+        return `<circle cx="${x}" cy="${y}" r="${1+(i%3)}" fill="rgba(180,100,255,0.7)"/>`;
+      }).join('')}
+      <!-- Central void eye -->
+      <circle cx="60" cy="70" r="18" fill="rgba(80,0,180,0.5)"/>
+      <circle cx="60" cy="70" r="10" fill="#000"/>
+      <circle cx="60" cy="70" r="5" fill="rgba(180,0,255,0.8)"/>
+      <ellipse cx="60" cy="70" rx="52" ry="62" fill="rgba(100,0,220,0.2)" filter="url(#vog)"/>
+    </svg>`,
+    devourer:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 130 150" width="170" height="170">
+      <defs>
+        <filter id="devg"><feGaussianBlur stdDeviation="8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        <radialGradient id="devr" cx="50%" cy="50%"><stop offset="0%" stop-color="#0a0030"/><stop offset="60%" stop-color="#000010"/><stop offset="100%" stop-color="#000000"/></radialGradient>
+      </defs>
+      <!-- Outer consuming aura -->
+      <ellipse cx="65" cy="75" rx="62" ry="72" fill="url(#devr)"/>
+      <!-- Consuming galaxies -->
+      ${[0,1,2,3,4,5,6,7].map(i=>{
+        const a=i*45,r=52;
+        const x=65+Math.cos(a*Math.PI/180)*r,y=75+Math.sin(a*Math.PI/180)*r;
+        return `<path d="M ${x},${y} Q ${65},${75} ${65+(x-65)*0.3},${75+(y-75)*0.3}" stroke="rgba(${150+i*10},${i*20},255,0.5)" stroke-width="3" fill="none"/>
+        <circle cx="${x}" cy="${y}" r="${4+i%4}" fill="rgba(${100+i*15},${i*10},${220},0.8)"/>`;
+      }).join('')}
+      <!-- Core -->
+      <ellipse cx="65" cy="75" rx="30" ry="35" fill="#000"/>
+      <ellipse cx="65" cy="75" rx="20" ry="24" fill="#0a0020"/>
+      <!-- Eye of devourer -->
+      <ellipse cx="65" cy="75" rx="12" ry="8" fill="#1a0040"/>
+      <ellipse cx="65" cy="75" rx="7" ry="5" fill="#5500cc"/>
+      <ellipse cx="65" cy="75" rx="3" ry="2" fill="#ffffff"/>
+      <ellipse cx="65" cy="75" rx="62" ry="72" fill="rgba(60,0,180,0.25)" filter="url(#devg)"/>
+    </svg>`,
+  };
+  return m[type] || m.goblin;
+}
+
+// Squad member SVGs by type and tier
+function squadSVG(type, tier) {
+  const t = Math.min(4, Math.floor(tier/5));
+  const ac = armorColor(t);
+  const eyeC = t>=3?'#ff3030':t>=1?'#cc8020':'#eeeecc';
+  const configs = {
+    warrior:  {icon:'⚔', w:50, h:70, bodyX:8},
+    archer:   {icon:'🏹', w:50, h:70, bodyX:8},
+    mage:     {icon:'🔮', w:50, h:70, bodyX:8},
+    rogue:    {icon:'🗡', w:50, h:70, bodyX:8},
+    infantry: {icon:'⚔', w:50, h:70, bodyX:8},
+    cavalry:  {icon:'🐴', w:50, h:70, bodyX:8},
+    siege:    {icon:'🏹', w:50, h:70, bodyX:8},
+    warmage:  {icon:'🔮', w:50, h:70, bodyX:8},
+  };
+  // Simple squad member sprite
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 70" width="50" height="70">
+    <ellipse cx="25" cy="68" rx="12" ry="3" fill="rgba(0,0,0,0.4)"/>
+    ${px(18,52,10,16,ac.body)}${px(28,52,10,16,ac.body)}
+    ${px(16,26,24,30,ac.body)}${px(24,26,12,24,ac.plate)}
+    ${px(6,28,12,20,ac.body)}${px(34,28,12,20,ac.body)}
+    ${px(14,8,22,22,t>=4?'#303030':t>=2?'#c0a888':'#d0b090')}
+    ${t>=2?`${px(12,4,26,10,ac.body)}`:`${px(12,4,26,8,'#2a1a10')}`}
+    ${px(16,14,6,5,eyeC)}${px(28,14,6,5,eyeC)}
+    ${type==='mage'?`<circle cx="40" cy="28" r="5" fill="rgba(100,0,200,0.5)"/><circle cx="40" cy="28" r="3" fill="#8020c0"/>`:
+      type==='archer'?`${px(38,10,3,38,'#664')}${px(34,18,11,3,'#553')}`:
+      type==='rogue'?`${px(37,18,4,24,'#888')}`:
+      `${px(36,12,4,30,'#888')}${px(32,24,12,3,'#666')}`}
+  </svg>`;
+}
+
+// ================================================================
+// GAME STATE
+// ================================================================
+let S = loadState();
+
+function defaultState() {
+  const lvl = {};
+  UPGRADES.forEach(u => lvl[u.id] = 0);
+  return {
+    gold: 0, goldSpent: 0, totalGoldEarned: 0,
+    phase: 0, kills: 0, wave: 1,
+    prestigeCount: 0, prestigeMult: 1, levels: lvl,
+    monHP: 0, monMaxHP: 0, lastTick: Date.now(),
+  };
+}
+
+function saveState() {
+  try { localStorage.setItem('dlc_save', JSON.stringify(S)); } catch(e){}
+}
+function loadState() {
+  try {
+    const raw = localStorage.getItem('dlc_save');
+    if (!raw) return defaultState();
+    const d = JSON.parse(raw);
+    // Merge with default to catch new fields
+    const def = defaultState();
+    return Object.assign(def, d, {levels: Object.assign(def.levels, d.levels||{})});
+  } catch(e) { return defaultState(); }
+}
+
+// ================================================================
+// CALCULATIONS
+// ================================================================
+function getClickDamage() {
+  let d = 5;
+  UPGRADES.filter(u=>u.click>0&&u.phase<=S.phase).forEach(u=>{
+    d += u.click * S.levels[u.id];
+  });
+  return d * S.prestigeMult;
+}
+
+function getAutoDPS() {
+  let d = 0;
+  UPGRADES.filter(u=>u.phase<=S.phase).forEach(u=>{
+    d += u.dps * S.levels[u.id];
+  });
+  return d * S.prestigeMult;
+}
+
+function getGoldBonus() {
+  // Amulet gives 1% gold per level
+  return 1 + (S.levels.amulet||0)*0.01;
+}
+
+function getMonsterHP(wave) {
+  return Math.floor(BASE_HP * Math.pow(HP_GROWTH, wave-1) * PHASE_HP_MULT[S.phase]);
+}
+function getMonsterGold(wave) {
+  return Math.floor(BASE_GOLD * Math.pow(GOLD_GROWTH, wave-1) * (1+(S.phase*0.5)) * getGoldBonus());
+}
+function getMonsterDPS(wave) {
+  return Math.floor(getMonsterHP(wave) * 0.01);
+}
+
+function getMonsterType(wave) {
+  const list = MONSTERS[S.phase];
+  return list[Math.floor((wave-1)/10) % list.length];
+}
+
+function getPhaseProgress() {
+  const nextPhase = S.phase + 1;
+  if (nextPhase >= PHASE_THRESHOLDS.length) return 1;
+  const needed = PHASE_THRESHOLDS[nextPhase];
+  const prev = PHASE_THRESHOLDS[S.phase];
+  const spent = S.goldSpent || 0;
+  return Math.min(1, Math.max(0, (spent - prev) / (needed - prev)));
+}
+
+function canPrestige() {
+  return S.phase >= 4 && S.wave >= 50;
+}
+
+// ================================================================
+// MONSTER MANAGEMENT
+// ================================================================
+let buyMode = 1; // 1, 10, 100, 0=max
+let activeTab = 0;
+
+function spawnMonster() {
+  const hp = getMonsterHP(S.wave);
+  S.monMaxHP = hp;
+  S.monHP = hp;
+}
+
+function attackMonster(dmg) {
+  S.monHP = Math.max(0, S.monHP - dmg);
+  if (S.monHP <= 0) killMonster();
+}
+
+function killMonster() {
+  const gold = getMonsterGold(S.wave);
+  S.gold += gold;
+  S.totalGoldEarned = (S.totalGoldEarned||0) + gold;
+  S.kills++;
+  S.wave++;
+  spawnMonster();
+  checkPhaseUnlock();
+}
+
+function checkPhaseUnlock() {
+  const spent = S.goldSpent || 0;
+  if (S.phase < 4 && spent >= PHASE_THRESHOLDS[S.phase+1]) {
+    S.phase++;
+    notify(`⚔ НОВАЯ ФАЗА: ${PHASE_NAMES[S.phase]}`, true);
+    renderAll();
+  }
+  if (canPrestige()) {
+    document.getElementById('prestige-btn').style.display = 'block';
+  }
+}
+
+// ================================================================
+// UPGRADE SYSTEM
+// ================================================================
+function getUpgradeCost(upg, n) {
+  return bulkCost(upg.baseCost, S.levels[upg.id], n);
+}
+
+function buyUpgrade(id, n) {
+  const upg = UPGRADES.find(u=>u.id===id);
+  if (!upg || upg.phase > S.phase) return;
+  const toBuy = n === 0 ? maxBuy(upg.baseCost, S.levels[upg.id], S.gold) : n;
+  if (toBuy <= 0) return;
+  const cost = bulkCost(upg.baseCost, S.levels[upg.id], toBuy);
+  if (cost > S.gold) return;
+  const prevTier = Math.floor(S.levels[upg.id]/5);
+  S.gold -= cost;
+  S.goldSpent += cost;
+  S.levels[upg.id] += toBuy;
+  const newTier = Math.floor(S.levels[upg.id]/5);
+  if (newTier > prevTier) {
+    const tierNames = ['I','II','III','IV','V','VI'];
+    notify(`✦ ${upg.name} достиг уровня ${newTier*5}! Новый облик ${tierNames[Math.min(5,newTier)]}!`);
+  }
+  checkPhaseUnlock();
+  renderHeroSprite();
+  renderSquadArea();
+  renderUpgrades();
+  updateResources();
+}
+
+// ================================================================
+// PRESTIGE
+// ================================================================
+function prestige() {
+  const bonus = Math.pow(1.5, S.prestigeCount+1);
+  S.prestigeCount++;
+  S.prestigeMult = bonus;
+  S.gold = 0;
+  S.goldSpent = 0;
+  S.phase = 0;
+  S.wave = 1;
+  S.kills = 0;
+  UPGRADES.forEach(u => S.levels[u.id] = 0);
+  spawnMonster();
+  notify(`✦ ПЕРЕРОЖДЕНИЕ ${S.prestigeCount}! Множитель: ×${bonus.toFixed(1)}`, true);
+  document.getElementById('prestige-btn').style.display = 'none';
+  renderAll();
+}
+
+// ================================================================
+// NOTIFICATIONS
+// ================================================================
+function notify(msg, isPhase=false) {
+  const el = document.createElement('div');
+  el.className = 'notif' + (isPhase?' phase':'');
+  el.textContent = msg;
+  document.getElementById('notifs').prepend(el);
+  setTimeout(()=>el.remove(), 3100);
+}
+
+// ================================================================
+// RENDERING
+// ================================================================
+function updateResources() {
+  document.getElementById('gold-v').textContent = fmt(S.gold);
+  // Gold/sec = kills/sec * gold/kill = (DPS / monHP) * goldReward
+  const monHP = S.monMaxHP||1;
+  const gps = (getAutoDPS() / monHP) * getMonsterGold(S.wave);
+  document.getElementById('gps-v').textContent = fmt(gps)+'/с';
+  document.getElementById('dps-v').textContent = fmt(getAutoDPS());
+  document.getElementById('prest-v').textContent = '×'+S.prestigeMult.toFixed(1);
+  document.getElementById('phase-ind').textContent = PHASE_NAMES_SHORT[S.phase];
+  document.getElementById('click-dmg-v').textContent = fmt(getClickDamage());
+  document.getElementById('auto-dps-v').textContent = fmt(getAutoDPS());
+  document.getElementById('total-dps-v').textContent = fmt(getAutoDPS());
+  document.getElementById('prest-count').textContent = S.prestigeCount;
+}
+
+function renderMonster() {
+  const mt = getMonsterType(S.wave);
+  document.getElementById('mon-name').textContent = mt.name;
+  document.getElementById('mon-wave').textContent = `Волна ${S.wave} • Фаза ${S.phase+1}`;
+  const pct = S.monMaxHP > 0 ? (S.monHP/S.monMaxHP*100) : 100;
+  document.getElementById('hp-bar').style.width = pct+'%';
+  document.getElementById('hp-txt').textContent = fmt(S.monHP)+' / '+fmt(S.monMaxHP);
+  document.getElementById('mon-area').innerHTML = monsterSVG(mt.type);
+  document.getElementById('mon-dmg-v').textContent = fmt(getMonsterDPS(S.wave));
+  document.getElementById('mon-gold-v').textContent = fmt(getMonsterGold(S.wave));
+  document.getElementById('kills-v').textContent = fmt(S.kills);
+  // Phase progress
+  const prog = getPhaseProgress();
+  const ppfill = document.getElementById('pp-fill');
+  const pptxt = document.getElementById('pp-txt');
+  if (S.phase >= 4) {
+    ppfill.style.width = '100%';
+    pptxt.textContent = 'Готово к перерождению!';
+  } else {
+    ppfill.style.width = (prog*100)+'%';
+    const needed2 = PHASE_THRESHOLDS[S.phase+1];
+    pptxt.textContent = `До фазы ${S.phase+2}: ${(prog*100).toFixed(1)}% (${fmt(S.goldSpent||0)}/${fmt(needed2)})`;
+  }
+}
+
+function renderHeroSprite() {
+  const wt = Math.floor(S.levels.weapon/5);
+  const at = Math.floor(S.levels.armor/5);
+  const st = Math.floor(S.levels.shield/5);
+  const amt= Math.floor(S.levels.amulet/5);
+  // For magical/galactic phases, show different sprites
+  let html = heroSVG(wt,at,st,amt);
+  if (S.phase >= 3) {
+    // Magical entity overlay
+    html = `<div style="position:relative;">
+      ${heroSVG(Math.max(3,wt), Math.max(4,at), st, Math.max(2,amt))}
+      <div style="position:absolute;inset:0;background:radial-gradient(ellipse,rgba(140,0,220,0.2) 0%,transparent 70%);pointer-events:none;"></div>
+    </div>`;
+  }
+  if (S.phase >= 4) {
+    html = `<div style="position:relative;">
+      ${heroSVG(Math.max(5,wt), Math.max(5,at), Math.max(4,st), Math.max(4,amt))}
+      <div style="position:absolute;inset:0;background:radial-gradient(ellipse,rgba(0,100,255,0.25) 0%,transparent 60%);pointer-events:none;"></div>
+    </div>`;
+  }
+  document.getElementById('hero-area').innerHTML = html;
+  // Hero name based on phase/tier
+  const heroNames = [
+    ['Странник','Воин','Рыцарь','Тёмный рыцарь','Смертоносец','Лорд Смерти'],
+    ['Командир','Капитан','Полководец','Тёмный полководец'],
+    ['Генерал','Военачальник','Владыка войны'],
+    ['Архимаг','Тёмный архимаг','Колдун Пустоты'],
+    ['Звёздный повелитель','Властелин галактик','Пожиратель миров'],
+  ];
+  const maxTier = Math.min(5, Math.max(wt,at));
+  const names = heroNames[Math.min(4,S.phase)];
+  document.getElementById('hero-name-txt').textContent = names[Math.min(names.length-1, maxTier)];
+}
+
+function renderSquadArea() {
+  const el = document.getElementById('squad-area');
+  // Show all recruited units across unlocked phases (phase 1+)
+  const squadUpgrades = UPGRADES.filter(u=>u.phase>=1 && u.phase<=S.phase);
+  if (squadUpgrades.length === 0) { el.innerHTML=''; return; }
+  let html = '';
+  squadUpgrades.forEach(u=>{
+    const lvl = S.levels[u.id];
+    if (lvl > 0) {
+      html += `<div class="squad-slot">
+        ${squadSVG(u.id, lvl)}
+        <div class="squad-lbl">${u.name} Lv${lvl}</div>
+      </div>`;
+    }
+  });
+  el.innerHTML = html || '<div style="color:var(--text3);font-size:10px;margin-top:8px;">Нет бойцов. Перейди на фазу Отряд!</div>';
+}
+
+function renderTabs() {
+  const tabs = document.querySelectorAll('.tab');
+  tabs.forEach((tab, i)=>{
+    tab.classList.remove('locked','active');
+    if (i > S.phase) tab.classList.add('locked');
+    if (i === activeTab) tab.classList.add('active');
+  });
+}
+
+function renderUpgrades() {
+  const list = document.getElementById('upg-list');
+  const phaseUpgrades = UPGRADES.filter(u=>u.phase===activeTab);
+  let html = '';
+  phaseUpgrades.forEach(u=>{
+    const lvl = S.levels[u.id];
+    const locked = u.phase > S.phase;
+    const bm = buyMode === 0 ? maxBuy(u.baseCost, lvl, S.gold) : buyMode;
+    const cost = locked ? 0 : bulkCost(u.baseCost, lvl, bm||1);
+    const canAfford = !locked && S.gold >= cost && cost > 0;
+    const tierN = Math.floor(lvl/5);
+    const tierProg = lvl % 5;
+    const tierNames = ['Уровень I','Уровень II','Уровень III','Уровень IV','Уровень V','Уровень VI'];
+    // DPS contribution
+    const dpsAdd = u.dps * (bm||1) * S.prestigeMult;
+    const clickAdd = u.click * (bm||1) * S.prestigeMult;
+    let bonus = '';
+    if (u.dps>0) bonus += `+${fmt(dpsAdd)} ДПС`;
+    if (u.click>0) bonus += (bonus?' ':'')+`+${fmt(clickAdd)} клик`;
+    html += `<div class="ucard ${canAfford?'can':''} ${locked?'locked':''}" data-id="${u.id}">
+      <div class="uhead">
+        <div class="uname">${u.icon} ${u.name}</div>
+        <div class="ulvl">Ур. ${lvl}</div>
+      </div>
+      <div class="udesc">${u.desc}</div>
+      <div class="ufoot">
+        <div class="ucost ${!canAfford&&!locked?'no':''}">
+          ${locked?'🔒 Заперто':`⬡ ${fmt(cost)}${bm>1?` (×${bm})`:''}`}
+        </div>
+        <div class="ubonus">${bonus}</div>
+      </div>
+      <div class="tier-bar">
+        ${[0,1,2,3,4].map(i=>`<div class="tp ${i<tierProg?'on':i===tierProg?'next':''}"></div>`).join('')}
+      </div>
+      ${tierN>0?`<div style="font-size:9px;color:var(--purple2);margin-top:3px;">✦ ${tierNames[Math.min(5,tierN)]}</div>`:''}
+    </div>`;
+  });
+  list.innerHTML = html;
+  // Bind click
+  list.querySelectorAll('.ucard:not(.locked)').forEach(card=>{
+    card.addEventListener('click',()=>{
+      const bm = buyMode===0 ? maxBuy(UPGRADES.find(u=>u.id===card.dataset.id).baseCost, S.levels[card.dataset.id], S.gold) : buyMode;
+      buyUpgrade(card.dataset.id, bm);
+    });
+  });
+}
+
+function renderAll() {
+  renderTabs();
+  renderMonster();
+  renderHeroSprite();
+  renderSquadArea();
+  renderUpgrades();
+  updateResources();
+  populateAdminUpgList();
+}
+
+// ================================================================
+// ADMIN PANEL
+// ================================================================
+function populateAdminUpgList() {
+  const sel = document.getElementById('a-upg');
+  sel.innerHTML = UPGRADES.map(u=>`<option value="${u.id}">${u.name} (${u.phase===0?'Герой':u.phase===1?'Отряд':u.phase===2?'Армия':u.phase===3?'Магия':'Космос'})</option>`).join('');
+}
+
+function openAdmin() {
+  document.getElementById('admin-overlay').style.display='block';
+  document.getElementById('admin').style.display='block';
+}
+function closeAdmin() {
+  document.getElementById('admin-overlay').style.display='none';
+  document.getElementById('admin').style.display='none';
+}
+
+document.getElementById('admin-x').addEventListener('click', closeAdmin);
+document.getElementById('admin-overlay').addEventListener('click', closeAdmin);
+document.getElementById('a-add-gold').addEventListener('click',()=>{
+  S.gold += parseFloat(document.getElementById('a-gold').value)||0;
+  updateResources(); renderUpgrades();
+});
+document.getElementById('a-do-gold').addEventListener('click',()=>{
+  S.gold = parseFloat(document.getElementById('a-set-gold').value)||0;
+  updateResources(); renderUpgrades();
+});
+document.getElementById('a-do-upg').addEventListener('click',()=>{
+  const id = document.getElementById('a-upg').value;
+  const n = parseInt(document.getElementById('a-upg-n').value)||1;
+  S.levels[id] = (S.levels[id]||0) + n;
+  renderAll();
+});
+document.getElementById('a-do-phase').addEventListener('click',()=>{
+  const p = parseInt(document.getElementById('a-phase').value);
+  S.phase = p;
+  S.goldSpent = PHASE_THRESHOLDS[p];
+  if (activeTab > p) activeTab = p;
+  spawnMonster();
+  renderAll();
+});
+document.getElementById('a-do-wave').addEventListener('click',()=>{
+  S.wave = Math.max(1, parseInt(document.getElementById('a-wave').value)||1);
+  spawnMonster();
+  renderMonster();
+});
+document.getElementById('a-do-prest').addEventListener('click',()=>{
+  const n = parseInt(document.getElementById('a-prest').value)||1;
+  for(let i=0;i<n;i++){S.prestigeCount++;S.prestigeMult=Math.pow(1.5,S.prestigeCount);}
+  updateResources();
+});
+document.getElementById('a-reset').addEventListener('click',()=>{
+  if(confirm('Сбросить всё? Это нельзя отменить.')){
+    localStorage.removeItem('dlc_save');
+    S = defaultState();
+    spawnMonster();
+    renderAll();
+    closeAdmin();
+  }
+});
+
+// ================================================================
+// EVENT HANDLERS
+// ================================================================
+document.getElementById('mon-area').addEventListener('click', (e)=>{
+  const dmg = getClickDamage();
+  attackMonster(dmg);
+  renderMonster();
+  updateResources();
+  // Damage popup
+  const pop = document.createElement('div');
+  pop.className = 'dmg-pop';
+  pop.textContent = '-'+fmt(dmg);
+  pop.style.left = (Math.random()*60+20)+'%';
+  pop.style.top = (Math.random()*30+20)+'%';
+  document.getElementById('mon-area').appendChild(pop);
+  setTimeout(()=>pop.remove(), 820);
+});
+
+document.querySelectorAll('.tab').forEach(tab=>{
+  tab.addEventListener('click',()=>{
+    const i = parseInt(tab.dataset.tab);
+    if (i > S.phase) return;
+    activeTab = i;
+    renderTabs();
+    renderUpgrades();
+  });
+});
+
+document.querySelectorAll('.bbtn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    buyMode = parseInt(btn.dataset.mode);
+    document.querySelectorAll('.bbtn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    renderUpgrades();
+  });
+});
+
+document.getElementById('prestige-btn').addEventListener('click',()=>{
+  if(confirm('Начать перерождение? Всё сбросится, но останется постоянный множитель урона.')){
+    prestige();
+  }
+});
+
+document.addEventListener('keydown',(e)=>{
+  if(e.altKey && e.key==='a') {
+    const adm = document.getElementById('admin');
+    if(adm.style.display==='block') closeAdmin(); else openAdmin();
+  }
+});
+
+// ================================================================
+// GAME LOOP
+// ================================================================
+let lastTick = Date.now();
+let autoDPSAccum = 0;
+let saveTimer = 0;
+
+function gameTick() {
+  const now = Date.now();
+  const dt = Math.min((now - lastTick)/1000, 1); // cap at 1s
+  lastTick = now;
+
+  // Auto DPS attacks monster
+  const dps = getAutoDPS();
+  autoDPSAccum += dps * dt;
+  if (autoDPSAccum >= 1) {
+    const dmg = Math.floor(autoDPSAccum);
+    autoDPSAccum -= dmg;
+    attackMonster(dmg);
+  }
+
+  // Offline income approximation (gold from killing)
+  // Already handled via attackMonster
+
+  saveTimer += dt;
+  if (saveTimer >= 10) {
+    saveTimer = 0;
+    saveState();
+  }
+
+  renderMonster();
+  updateResources();
+  requestAnimationFrame(gameTick);
+}
+
+// ================================================================
+// INIT
+// ================================================================
+if (S.monHP <= 0 || S.monMaxHP <= 0) spawnMonster();
+populateAdminUpgList();
+renderAll();
+gameTick();
+</script>
+</body>
+</html>
