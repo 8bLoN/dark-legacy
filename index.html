@@ -93,7 +93,7 @@ body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;
 .ppfill{height:100%;background:linear-gradient(90deg,var(--purple),var(--purple2));transition:width 0.3s;}
 .pptxt{font-size:9px;color:var(--text3);text-align:center;margin-top:2px;}
 /* UPGRADE PANEL */
-#upg-panel{width:360px;flex-shrink:0;background:var(--bg1);display:flex;flex-direction:column;overflow:hidden;}
+#upg-panel{width:360px;flex-shrink:0;background:var(--bg1);border-right:2px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
 #upg-tabs{display:flex;background:var(--bg2);border-bottom:2px solid var(--border);flex-shrink:0;}
 .tab{flex:1;padding:8px 2px;text-align:center;cursor:pointer;font-size:9px;letter-spacing:1px;color:var(--text3);border-bottom:2px solid transparent;transition:all 0.2s;margin-bottom:-2px;}
 .tab:hover{color:var(--text);}
@@ -160,6 +160,24 @@ body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;
   <button onclick="openAdmin()" style="background:var(--bg3);border:1px solid var(--border);color:var(--text3);padding:4px 10px;cursor:pointer;font-family:inherit;font-size:11px;border-radius:3px;letter-spacing:1px;" title="Alt+A">⚙ АДМИН</button>
 </div>
 <div id="main">
+  <!-- UPGRADE PANEL — FAR LEFT -->
+  <div id="upg-panel">
+    <div id="upg-tabs">
+      <div class="tab active" data-tab="0">⚔ ГЕРОЙ</div>
+      <div class="tab locked" data-tab="1">👥 ОТРЯД</div>
+      <div class="tab locked" data-tab="2">⚔ АРМИЯ</div>
+      <div class="tab locked" data-tab="3">✦ МАГИЯ</div>
+      <div class="tab locked" data-tab="4">✦ КОСМОС</div>
+    </div>
+    <div id="upg-list"></div>
+    <div id="buy-row">
+      <button class="bbtn active" data-mode="1">×1</button>
+      <button class="bbtn" data-mode="10">×10</button>
+      <button class="bbtn" data-mode="100">×100</button>
+      <button class="bbtn" data-mode="0">МАКС</button>
+    </div>
+    <button id="prestige-btn">✦ ПЕРЕРОЖДЕНИЕ ✦</button>
+  </div>
   <!-- HERO PANEL — LEFT -->
   <div id="hero-panel">
     <div id="prestige-info">★ <span id="prest-count">0</span> престиж(а)</div>
@@ -203,24 +221,6 @@ body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;
       <div class="ppbar"><div class="ppfill" id="pp-fill" style="width:0%"></div></div>
       <div class="pptxt" id="pp-txt">До следующей фазы: 0%</div>
     </div>
-  </div>
-  <!-- UPGRADE PANEL -->
-  <div id="upg-panel">
-    <div id="upg-tabs">
-      <div class="tab active" data-tab="0">⚔ ГЕРОЙ</div>
-      <div class="tab locked" data-tab="1">👥 ОТРЯД</div>
-      <div class="tab locked" data-tab="2">⚔ АРМИЯ</div>
-      <div class="tab locked" data-tab="3">✦ МАГИЯ</div>
-      <div class="tab locked" data-tab="4">✦ КОСМОС</div>
-    </div>
-    <div id="upg-list"></div>
-    <div id="buy-row">
-      <button class="bbtn active" data-mode="1">×1</button>
-      <button class="bbtn" data-mode="10">×10</button>
-      <button class="bbtn" data-mode="100">×100</button>
-      <button class="bbtn" data-mode="0">МАКС</button>
-    </div>
-    <button id="prestige-btn">✦ ПЕРЕРОЖДЕНИЕ ✦</button>
   </div>
 </div>
 <div id="notifs"></div>
