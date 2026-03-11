@@ -140,6 +140,35 @@ body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;
 .abtn.danger{border-color:var(--red);color:var(--red2);}
 .abtn.danger:hover{background:rgba(170,32,32,0.2);}
 #admin-x{position:absolute;top:9px;right:11px;background:none;border:none;color:var(--text3);cursor:pointer;font-size:17px;}
+/* PHASE TRACKER */
+#phase-track{display:flex;align-items:stretch;background:var(--bg2);border-bottom:2px solid var(--border);height:34px;flex-shrink:0;position:relative;overflow:hidden;}
+.pt-seg{flex:1;display:flex;flex-direction:column;justify-content:center;position:relative;overflow:hidden;padding:0 10px;cursor:default;}
+.pt-fill{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,rgba(96,24,128,0.5),rgba(144,48,192,0.3));transition:width 0.4s ease;pointer-events:none;}
+.pt-fill.done{background:linear-gradient(90deg,rgba(96,24,128,0.7),rgba(144,48,192,0.5));}
+.pt-name{position:relative;font-size:9px;letter-spacing:2px;color:var(--text3);z-index:1;white-space:nowrap;}
+.pt-pct{position:relative;font-size:8px;color:var(--text3);z-index:1;margin-top:1px;}
+.pt-seg.done .pt-name{color:var(--purple2);}
+.pt-seg.active .pt-name{color:var(--gold);text-shadow:0 0 6px rgba(200,160,48,0.5);}
+.pt-seg.active .pt-pct{color:var(--gold2);}
+.pt-seg.locked .pt-name{color:var(--text3);opacity:0.4;}
+.pt-div{width:1px;background:var(--border);flex-shrink:0;}
+.pt-arrow{display:flex;align-items:center;padding:0 4px;color:var(--border);font-size:10px;flex-shrink:0;}
+.pt-seg.active::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--gold);box-shadow:0 0 6px var(--gold);}
+.pt-seg.done::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--purple2);}
+/* MONSTER HP — redesigned */
+#mon-hp-block{width:100%;margin-bottom:12px;}
+#mon-hp-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px;}
+#mon-hp-name{font-size:14px;color:var(--red2);text-shadow:0 0 8px var(--red);letter-spacing:2px;font-weight:bold;}
+#mon-hp-nums{font-size:11px;color:var(--text2);font-variant-numeric:tabular-nums;}
+#hp-wrap{width:100%;height:22px;background:var(--bg3);border:1px solid var(--border);border-radius:3px;position:relative;overflow:hidden;}
+#hp-bar{height:100%;background:linear-gradient(90deg,var(--red),var(--red2));transition:width 0.12s;position:relative;}
+#hp-bar::after{content:'';position:absolute;top:0;left:0;right:0;height:40%;background:rgba(255,255,255,0.07);}
+#hp-bar.flash{animation:hpflash 0.15s ease-out;}
+@keyframes hpflash{0%{filter:brightness(2);}100%{filter:brightness(1);}}
+#hp-pct{position:absolute;top:50%;right:8px;transform:translateY(-50%);font-size:10px;color:rgba(255,255,255,0.7);text-shadow:1px 1px 2px #000;z-index:1;letter-spacing:1px;}
+#mon-wave-info{display:flex;justify-content:space-between;margin-top:4px;}
+#mon-wave-lbl{font-size:9px;color:var(--text3);letter-spacing:1px;}
+#mon-gold-lbl{font-size:9px;color:var(--gold);letter-spacing:1px;}
 /* NOTIFICATIONS */
 #notifs{position:fixed;top:58px;right:14px;z-index:500;display:flex;flex-direction:column;gap:4px;pointer-events:none;}
 .notif{background:var(--bg3);border:1px solid var(--gold);border-radius:4px;padding:7px 14px;color:var(--gold2);font-size:11px;letter-spacing:1px;animation:ntf 3s ease-out forwards;box-shadow:0 0 12px rgba(200,160,48,0.3);}
@@ -158,6 +187,18 @@ body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;
   </div>
   <div id="phase-ind">ГЕРОЙ</div>
   <button onclick="openAdmin()" style="background:var(--bg3);border:1px solid var(--border);color:var(--text3);padding:4px 10px;cursor:pointer;font-family:inherit;font-size:11px;border-radius:3px;letter-spacing:1px;" title="Alt+A">⚙ АДМИН</button>
+</div>
+<!-- PHASE TRACKER — full width -->
+<div id="phase-track">
+  <div class="pt-seg active" id="pt-0"><div class="pt-fill" id="ptf-0" style="width:0%"></div><div class="pt-name">I · ГЕРОЙ</div><div class="pt-pct" id="ptp-0">0%</div></div>
+  <div class="pt-arrow">▶</div>
+  <div class="pt-seg locked" id="pt-1"><div class="pt-fill done" id="ptf-1" style="width:0%"></div><div class="pt-name">II · ОТРЯД</div><div class="pt-pct" id="ptp-1"></div></div>
+  <div class="pt-arrow">▶</div>
+  <div class="pt-seg locked" id="pt-2"><div class="pt-fill done" id="ptf-2" style="width:0%"></div><div class="pt-name">III · АРМИЯ</div><div class="pt-pct" id="ptp-2"></div></div>
+  <div class="pt-arrow">▶</div>
+  <div class="pt-seg locked" id="pt-3"><div class="pt-fill done" id="ptf-3" style="width:0%"></div><div class="pt-name">IV · МАГИЯ</div><div class="pt-pct" id="ptp-3"></div></div>
+  <div class="pt-arrow">▶</div>
+  <div class="pt-seg locked" id="pt-4"><div class="pt-fill done" id="ptf-4" style="width:0%"></div><div class="pt-name">V · КОСМОС</div><div class="pt-pct" id="ptp-4"></div></div>
 </div>
 <div id="main">
   <!-- UPGRADE PANEL — FAR LEFT -->
@@ -208,18 +249,24 @@ body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;
   <!-- MONSTER PANEL — RIGHT -->
   <div id="mon-panel">
     <div id="mon-label">— ПРОТИВНИК —</div>
-    <div id="mon-name">Гоблин</div>
-    <div id="mon-wave">Волна 1</div>
-    <div id="hp-wrap"><div id="hp-bar" style="width:100%"></div><div id="hp-txt">100/100</div></div>
+    <div id="mon-hp-block">
+      <div id="mon-hp-top">
+        <div id="mon-hp-name">Гоблин</div>
+        <div id="mon-hp-nums">100 / 100</div>
+      </div>
+      <div id="hp-wrap">
+        <div id="hp-bar" style="width:100%"></div>
+        <div id="hp-pct">100%</div>
+      </div>
+      <div id="mon-wave-info">
+        <div id="mon-wave-lbl">Волна 1 • Фаза 1</div>
+        <div id="mon-gold-lbl">⬡ 5 золота</div>
+      </div>
+    </div>
     <div id="mon-area"></div>
     <div id="mon-stats">
       <div class="sbox"><div class="v" id="mon-dmg-v">1</div><div class="l">УРОН/с</div></div>
-      <div class="sbox"><div class="v" id="mon-gold-v">5</div><div class="l">НАГРАДА</div></div>
-    </div>
-    <div id="kills-txt">Убито: <span id="kills-v">0</span></div>
-    <div id="phase-prog">
-      <div class="ppbar"><div class="ppfill" id="pp-fill" style="width:0%"></div></div>
-      <div class="pptxt" id="pp-txt">До следующей фазы: 0%</div>
+      <div class="sbox"><div class="v" id="kills-v">0</div><div class="l">УБИТО</div></div>
     </div>
   </div>
 </div>
@@ -1124,33 +1171,54 @@ function updateResources() {
   document.getElementById('auto-dps-v').textContent = fmt(getAutoDPS());
   document.getElementById('total-dps-v').textContent = fmt(getAutoDPS());
   document.getElementById('wave-v').textContent = S.wave;
-  document.getElementById('kills-v2').textContent = fmt(S.kills);
   document.getElementById('attack-dmg-hint').textContent = fmt(getClickDamage())+' урона/клик';
   document.getElementById('prest-count').textContent = S.prestigeCount;
 }
 
 function renderMonster() {
   const mt = getMonsterType(S.wave);
-  document.getElementById('mon-name').textContent = mt.name;
-  document.getElementById('mon-wave').textContent = `Волна ${S.wave} • Фаза ${S.phase+1}`;
-  const pct = S.monMaxHP > 0 ? (S.monHP/S.monMaxHP*100) : 100;
-  document.getElementById('hp-bar').style.width = pct+'%';
-  document.getElementById('hp-txt').textContent = fmt(S.monHP)+' / '+fmt(S.monMaxHP);
+  // HP bar
+  const pct = S.monMaxHP > 0 ? (S.monHP / S.monMaxHP * 100) : 100;
+  const hpBar = document.getElementById('hp-bar');
+  hpBar.style.width = pct + '%';
+  // Color: green→yellow→red
+  const r = Math.round(170 + 85*(1-pct/100));
+  const g = Math.round(160 * pct/100);
+  hpBar.style.background = `linear-gradient(90deg, rgb(${r},${Math.round(g*0.5)},20), rgb(${r},${g},20))`;
+  document.getElementById('hp-pct').textContent = pct.toFixed(1) + '%';
+  document.getElementById('mon-hp-name').textContent = mt.name;
+  document.getElementById('mon-hp-nums').textContent = fmt(Math.ceil(S.monHP)) + ' / ' + fmt(S.monMaxHP);
+  document.getElementById('mon-wave-lbl').textContent = `Волна ${S.wave} • Фаза ${S.phase+1}`;
+  document.getElementById('mon-gold-lbl').textContent = `⬡ ${fmt(getMonsterGold(S.wave))} золота`;
   document.getElementById('mon-area').innerHTML = monsterSVG(mt.type);
   document.getElementById('mon-dmg-v').textContent = fmt(getMonsterDPS(S.wave));
-  document.getElementById('mon-gold-v').textContent = fmt(getMonsterGold(S.wave));
   document.getElementById('kills-v').textContent = fmt(S.kills);
-  // Phase progress
-  const prog = getPhaseProgress();
-  const ppfill = document.getElementById('pp-fill');
-  const pptxt = document.getElementById('pp-txt');
-  if (S.phase >= 4) {
-    ppfill.style.width = '100%';
-    pptxt.textContent = 'Готово к перерождению!';
-  } else {
-    ppfill.style.width = (prog*100)+'%';
-    const needed2 = PHASE_THRESHOLDS[S.phase+1];
-    pptxt.textContent = `До фазы ${S.phase+2}: ${(prog*100).toFixed(1)}% (${fmt(S.goldSpent||0)}/${fmt(needed2)})`;
+  renderPhaseTrack();
+}
+
+function renderPhaseTrack() {
+  for (let i = 0; i < 5; i++) {
+    const seg = document.getElementById('pt-' + i);
+    const fill = document.getElementById('ptf-' + i);
+    const pct = document.getElementById('ptp-' + i);
+    seg.className = 'pt-seg';
+    if (i < S.phase) {
+      seg.classList.add('done');
+      fill.style.width = '100%';
+      if (pct) pct.textContent = '✓';
+    } else if (i === S.phase) {
+      seg.classList.add('active');
+      const prog = getPhaseProgress();
+      fill.style.width = (prog * 100) + '%';
+      if (pct) {
+        if (S.phase >= 4) pct.textContent = 'МАКС';
+        else pct.textContent = (prog * 100).toFixed(0) + '%';
+      }
+    } else {
+      seg.classList.add('locked');
+      fill.style.width = '0%';
+      if (pct) pct.textContent = '';
+    }
   }
 }
 
