@@ -23,42 +23,75 @@ body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;
 #phase-ind{padding:4px 12px;border:1px solid var(--borderB);border-radius:4px;background:var(--bg3);color:var(--purple2);font-weight:bold;letter-spacing:2px;font-size:11px;}
 /* MAIN */
 #main{display:flex;flex:1;overflow:hidden;}
-/* MONSTER PANEL */
-#mon-panel{width:320px;flex-shrink:0;background:var(--bg1);border-right:2px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:14px;position:relative;overflow:hidden;}
+/* HERO PANEL — LEFT */
+#hero-panel{width:260px;flex-shrink:0;background:var(--bg1);border-right:2px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:14px;overflow:hidden;position:relative;}
+#hero-panel::before{content:'';position:absolute;bottom:0;left:0;right:0;height:80px;background:linear-gradient(transparent,rgba(70,0,100,0.1));pointer-events:none;}
+#hero-lbl{font-size:10px;letter-spacing:3px;color:var(--text3);margin-bottom:6px;}
+#hero-area{width:200px;height:230px;display:flex;align-items:flex-end;justify-content:center;position:relative;}
+#hero-area::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:100px;height:16px;background:radial-gradient(ellipse,rgba(0,0,0,0.5) 0%,transparent 70%);border-radius:50%;}
+#hero-name-txt{font-size:13px;color:var(--gold);letter-spacing:2px;margin-top:6px;text-align:center;}
+#hero-stats{width:100%;display:flex;gap:6px;margin-top:6px;justify-content:center;flex-wrap:wrap;}
+#squad-area{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;justify-content:center;max-width:100%;}
+.squad-slot{display:flex;flex-direction:column;align-items:center;gap:3px;}
+.squad-lbl{font-size:9px;color:var(--text3);letter-spacing:1px;}
+#prestige-info{position:absolute;top:8px;right:8px;color:var(--purple2);font-size:10px;}
+#dps-txt{font-size:10px;color:var(--text3);margin-top:4px;}
+/* COMBAT PANEL — CENTER */
+#combat-panel{flex:1;background:var(--bg);border-right:2px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;position:relative;overflow:hidden;}
+#combat-panel::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(80,0,20,0.12) 0%,transparent 70%);pointer-events:none;}
+#attack-btn{
+  width:200px;height:200px;border-radius:50%;
+  background:radial-gradient(circle at 38% 36%, #5a1010 0%, #2a0808 50%, #180404 100%);
+  border:3px solid #8a1a1a;
+  box-shadow:0 0 30px rgba(180,20,20,0.5), 0 0 60px rgba(120,0,0,0.3), inset 0 0 30px rgba(0,0,0,0.6);
+  cursor:pointer;color:#e8c0a0;font-family:inherit;font-size:18px;font-weight:bold;
+  letter-spacing:3px;text-shadow:0 0 12px rgba(220,100,80,0.8);
+  transition:all 0.08s;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:6px;user-select:none;position:relative;
+}
+#attack-btn::before{
+  content:'';position:absolute;inset:4px;border-radius:50%;
+  border:1px solid rgba(180,60,60,0.3);
+}
+#attack-btn::after{
+  content:'';position:absolute;inset:12px;border-radius:50%;
+  border:1px solid rgba(180,60,60,0.15);
+}
+#attack-btn:hover{
+  box-shadow:0 0 40px rgba(220,40,20,0.7), 0 0 80px rgba(150,0,0,0.4), inset 0 0 30px rgba(0,0,0,0.4);
+  border-color:#cc2a2a;transform:scale(1.03);
+}
+#attack-btn:active{
+  transform:scale(0.93);
+  box-shadow:0 0 15px rgba(180,20,20,0.4), inset 0 0 40px rgba(0,0,0,0.8);
+}
+#attack-icon{font-size:42px;line-height:1;}
+#attack-label{font-size:13px;letter-spacing:4px;}
+#attack-dmg-hint{font-size:10px;color:rgba(200,160,120,0.6);letter-spacing:1px;}
+#combat-stats{display:flex;gap:12px;}
+#combat-log{font-size:10px;color:var(--text3);text-align:center;height:40px;display:flex;flex-direction:column;gap:3px;justify-content:flex-end;}
+.dmg-pop{position:absolute;font-size:18px;font-weight:bold;color:var(--gold2);text-shadow:0 0 6px var(--gold);pointer-events:none;animation:pop 0.9s ease-out forwards;z-index:10;}
+@keyframes pop{0%{opacity:1;transform:translateY(0) scale(1.1);}100%{opacity:0;transform:translateY(-80px) scale(0.6);}}
+/* MONSTER PANEL — RIGHT */
+#mon-panel{width:300px;flex-shrink:0;background:var(--bg1);border-right:2px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:14px;position:relative;overflow:hidden;}
 #mon-panel::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(100,0,0,0.08) 0%,transparent 70%);pointer-events:none;}
 #mon-label{font-size:10px;letter-spacing:3px;color:var(--text3);margin-bottom:6px;}
 #mon-name{font-size:15px;color:var(--red2);text-shadow:0 0 8px var(--red);letter-spacing:2px;margin-bottom:3px;text-align:center;}
 #mon-wave{font-size:10px;color:var(--text3);margin-bottom:10px;}
 #hp-wrap{width:100%;height:18px;background:var(--bg3);border:1px solid var(--border);border-radius:2px;margin-bottom:14px;position:relative;overflow:hidden;}
-#hp-bar{height:100%;background:linear-gradient(90deg,var(--red),var(--red2));transition:width 0.1s;}
+#hp-bar{height:100%;background:linear-gradient(90deg,var(--red),var(--red2));transition:width 0.12s;}
 #hp-txt{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:10px;color:#fff;text-shadow:1px 1px 2px #000;z-index:1;}
-#mon-area{width:180px;height:180px;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;transition:transform 0.06s;}
-#mon-area:active{transform:scale(0.94);}
-#mon-area:hover svg{filter:brightness(1.25);}
-.dmg-pop{position:absolute;font-size:15px;font-weight:bold;color:var(--gold2);text-shadow:0 0 4px var(--gold);pointer-events:none;animation:pop 0.8s ease-out forwards;z-index:10;}
-@keyframes pop{0%{opacity:1;transform:translateY(0) scale(1);}100%{opacity:0;transform:translateY(-55px) scale(0.7);}}
-#mon-stats{width:100%;margin-top:10px;display:flex;gap:10px;justify-content:center;}
+#mon-area{width:200px;height:200px;display:flex;align-items:center;justify-content:center;position:relative;}
+#mon-area svg{pointer-events:none;}
 .sbox{background:var(--bg3);border:1px solid var(--border);border-radius:3px;padding:5px 10px;text-align:center;}
 .sbox .v{color:var(--gold);font-weight:bold;font-size:13px;}
 .sbox .l{color:var(--text3);font-size:9px;letter-spacing:1px;}
+#mon-stats{width:100%;margin-top:10px;display:flex;gap:10px;justify-content:center;}
 #kills-txt{margin-top:8px;color:var(--text3);font-size:10px;}
 #phase-prog{width:100%;margin-top:10px;}
 .ppbar{height:4px;background:var(--bg3);border-radius:2px;overflow:hidden;}
 .ppfill{height:100%;background:linear-gradient(90deg,var(--purple),var(--purple2));transition:width 0.3s;}
 .pptxt{font-size:9px;color:var(--text3);text-align:center;margin-top:2px;}
-/* HERO PANEL */
-#hero-panel{flex:1;background:var(--bg1);border-right:2px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:14px;overflow:hidden;position:relative;}
-#hero-panel::before{content:'';position:absolute;bottom:0;left:0;right:0;height:80px;background:linear-gradient(transparent,rgba(70,0,100,0.1));pointer-events:none;}
-#hero-lbl{font-size:10px;letter-spacing:3px;color:var(--text3);margin-bottom:6px;}
-#hero-area{width:220px;height:240px;display:flex;align-items:flex-end;justify-content:center;position:relative;}
-#hero-area::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:110px;height:18px;background:radial-gradient(ellipse,rgba(0,0,0,0.5) 0%,transparent 70%);border-radius:50%;}
-#hero-name-txt{font-size:14px;color:var(--gold);letter-spacing:2px;margin-top:6px;text-align:center;}
-#hero-stats{width:100%;display:flex;gap:8px;margin-top:6px;justify-content:center;flex-wrap:wrap;}
-#squad-area{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;justify-content:center;max-width:100%;}
-.squad-slot{display:flex;flex-direction:column;align-items:center;gap:3px;}
-.squad-lbl{font-size:9px;color:var(--text3);letter-spacing:1px;}
-#prestige-info{position:absolute;top:8px;right:8px;color:var(--purple2);font-size:10px;}
-#dps-txt{font-size:10px;color:var(--text3);margin-top:4px;}
 /* UPGRADE PANEL */
 #upg-panel{width:360px;flex-shrink:0;background:var(--bg1);display:flex;flex-direction:column;overflow:hidden;}
 #upg-tabs{display:flex;background:var(--bg2);border-bottom:2px solid var(--border);flex-shrink:0;}
@@ -127,7 +160,34 @@ body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;
   <button onclick="openAdmin()" style="background:var(--bg3);border:1px solid var(--border);color:var(--text3);padding:4px 10px;cursor:pointer;font-family:inherit;font-size:11px;border-radius:3px;letter-spacing:1px;" title="Alt+A">⚙ АДМИН</button>
 </div>
 <div id="main">
-  <!-- MONSTER PANEL -->
+  <!-- HERO PANEL — LEFT -->
+  <div id="hero-panel">
+    <div id="prestige-info">★ <span id="prest-count">0</span> престиж(а)</div>
+    <div id="hero-lbl">— ЧЕМПИОН —</div>
+    <div id="hero-area"></div>
+    <div id="hero-name-txt">Странник</div>
+    <div id="hero-stats">
+      <div class="sbox"><div class="v" id="click-dmg-v">5</div><div class="l">КЛИК</div></div>
+      <div class="sbox"><div class="v" id="auto-dps-v">0</div><div class="l">АВТ.ДПС</div></div>
+    </div>
+    <div id="dps-txt">Всего ДПС: <span id="total-dps-v">0</span></div>
+    <div id="squad-area"></div>
+  </div>
+  <!-- COMBAT PANEL — CENTER -->
+  <div id="combat-panel">
+    <div id="combat-stats">
+      <div class="sbox"><div class="v" id="click-dmg-v2">5</div><div class="l">УРОН КЛИКА</div></div>
+      <div class="sbox"><div class="v" id="wave-v">1</div><div class="l">ВОЛНА</div></div>
+      <div class="sbox"><div class="v" id="kills-v2">0</div><div class="l">УБИТО</div></div>
+    </div>
+    <button id="attack-btn">
+      <div id="attack-icon">⚔</div>
+      <div id="attack-label">АТАКОВАТЬ</div>
+      <div id="attack-dmg-hint">клик для удара</div>
+    </button>
+    <div id="combat-log"></div>
+  </div>
+  <!-- MONSTER PANEL — RIGHT -->
   <div id="mon-panel">
     <div id="mon-label">— ПРОТИВНИК —</div>
     <div id="mon-name">Гоблин</div>
@@ -143,19 +203,6 @@ body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;
       <div class="ppbar"><div class="ppfill" id="pp-fill" style="width:0%"></div></div>
       <div class="pptxt" id="pp-txt">До следующей фазы: 0%</div>
     </div>
-  </div>
-  <!-- HERO PANEL -->
-  <div id="hero-panel">
-    <div id="prestige-info">★ <span id="prest-count">0</span> престиж(а)</div>
-    <div id="hero-lbl">— ЧЕМПИОН —</div>
-    <div id="hero-area"></div>
-    <div id="hero-name-txt">Странник</div>
-    <div id="hero-stats">
-      <div class="sbox"><div class="v" id="click-dmg-v">5</div><div class="l">КЛИК</div></div>
-      <div class="sbox"><div class="v" id="auto-dps-v">0</div><div class="l">АВТ.ДПС</div></div>
-    </div>
-    <div id="dps-txt">Всего ДПС: <span id="total-dps-v">0</span></div>
-    <div id="squad-area"></div>
   </div>
   <!-- UPGRADE PANEL -->
   <div id="upg-panel">
@@ -1071,9 +1118,14 @@ function updateResources() {
   document.getElementById('dps-v').textContent = fmt(getAutoDPS());
   document.getElementById('prest-v').textContent = '×'+S.prestigeMult.toFixed(1);
   document.getElementById('phase-ind').textContent = PHASE_NAMES_SHORT[S.phase];
-  document.getElementById('click-dmg-v').textContent = fmt(getClickDamage());
+  const clickDmg = fmt(getClickDamage());
+  document.getElementById('click-dmg-v').textContent = clickDmg;
+  document.getElementById('click-dmg-v2').textContent = clickDmg;
   document.getElementById('auto-dps-v').textContent = fmt(getAutoDPS());
   document.getElementById('total-dps-v').textContent = fmt(getAutoDPS());
+  document.getElementById('wave-v').textContent = S.wave;
+  document.getElementById('kills-v2').textContent = fmt(S.kills);
+  document.getElementById('attack-dmg-hint').textContent = fmt(getClickDamage())+' урона/клик';
   document.getElementById('prest-count').textContent = S.prestigeCount;
 }
 
@@ -1284,19 +1336,27 @@ document.getElementById('a-reset').addEventListener('click',()=>{
 // ================================================================
 // EVENT HANDLERS
 // ================================================================
-document.getElementById('mon-area').addEventListener('click', (e)=>{
+document.getElementById('attack-btn').addEventListener('click', ()=>{
   const dmg = getClickDamage();
   attackMonster(dmg);
   renderMonster();
   updateResources();
-  // Damage popup
+  // Damage popup in combat panel
+  const panel = document.getElementById('combat-panel');
   const pop = document.createElement('div');
   pop.className = 'dmg-pop';
   pop.textContent = '-'+fmt(dmg);
-  pop.style.left = (Math.random()*60+20)+'%';
-  pop.style.top = (Math.random()*30+20)+'%';
-  document.getElementById('mon-area').appendChild(pop);
-  setTimeout(()=>pop.remove(), 820);
+  pop.style.left = (30+Math.random()*40)+'%';
+  pop.style.top = (20+Math.random()*30)+'%';
+  panel.appendChild(pop);
+  setTimeout(()=>pop.remove(), 920);
+  // Update combat log
+  const log = document.getElementById('combat-log');
+  const entry = document.createElement('div');
+  entry.textContent = `⚔ Удар: ${fmt(dmg)} урона`;
+  entry.style.opacity = '0.7';
+  log.prepend(entry);
+  while(log.children.length > 3) log.removeChild(log.lastChild);
 });
 
 document.querySelectorAll('.tab').forEach(tab=>{
